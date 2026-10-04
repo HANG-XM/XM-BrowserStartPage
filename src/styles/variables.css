@@ -1,0 +1,126 @@
+/* ============================================================
+ * variables.css —— 全局 CSS 变量定义
+ * 颜色 / 字体 / 间距 / 圆角 / 阴影 / 动效 / 层级
+ *
+ * 主题约定：
+ *   - :root                → 亮色主题（默认）
+ *   - [data-theme="dark"]  → 暗色主题
+ *   由 JS 在 <html> 元素上切换 data-theme 属性实现换肤。
+ *   所有组件样式只允许引用变量，禁止写死颜色值。
+ * ============================================================ */
+
+:root {
+  /* ---------- 颜色（亮色主题） ---------- */
+  --color-bg: #f5f6f8;              /* 页面背景 */
+  --color-bg-elevated: #ffffff;     /* 浮层背景（搜索框、面板等） */
+  --color-text: #1a1d21;            /* 主文字 */
+  --color-text-secondary: #6b7280;  /* 次要文字 */
+  --color-accent: #3b82f6;          /* 强调色 */
+  --color-accent-hover: #2563eb;    /* 强调色 hover */
+  --color-border: #e5e7eb;          /* 边框 */
+  --color-overlay: rgba(0, 0, 0, 0.4); /* 遮罩（设置面板等） */
+  --color-accent-soft: rgba(59, 130, 246, 0.12); /* 选中项背景 / hover 高亮 */
+  --color-text-tertiary: #9ca3af;   /* 占位符等最弱一级文字 */
+  --color-focus-ring: rgba(59, 130, 246, 0.45); /* focus 描边 */
+  --color-button-bg: transparent;   /* 图标按钮默认背景 */
+  --color-accent-contrast: #ffffff; /* 强调色上的文字颜色 */
+  --color-warning: #d97706;         /* 提示 / 警告 */
+  --color-success: #16a34a;         /* 成功 */
+  --color-error: #dc2626;           /* 错误 */
+  --color-wallpaper-overlay: rgba(255, 255, 255, 0.6); /* 壁纸遮罩（亮色下偏白） */
+  --color-scrollbar-thumb: rgba(107, 114, 128, 0.3);  /* 滚动条 thumb（次级文字色 0.3） */
+  --color-scrollbar-thumb-hover: rgba(107, 114, 128, 0.5);
+  --color-slider-thumb: #ffffff;                       /* 滑块 thumb（暗色下仍白） */
+
+  /* ---------- 玻璃拟态表面（批 3） ---------- */
+  --surface-glass-bg: rgba(255, 255, 255, 0.65);
+  --surface-glass-border: rgba(255, 255, 255, 0.6);
+  --surface-glass-highlight: rgba(255, 255, 255, 0.25);
+  --surface-glass-blur: blur(20px) saturate(160%);
+  --surface-glass-blur-soft: blur(12px) saturate(150%);
+  --surface-glass-fallback-bg: var(--color-bg-elevated); /* 降级时回退为不透明浮层色，随主题解析 */
+  /* 搜索框透明度可调：RGB 底色分亮暗两套，alpha 共用一个变量（默认 0.65） */
+  --surface-glass-rgb: 255, 255, 255;
+  --search-box-alpha: 0.65;
+
+  /* ---------- 字体（仅系统字体栈，不引入外部字体） ---------- */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-size-sm: 0.8rem;           /* 分区标题等弱化标题 */
+  --font-size-base: 1rem;
+  --font-size-md: 0.95rem;          /* 日期 / 问候语 */
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 2rem;
+  --font-size-input: 1.1rem;        /* 搜索输入框 */
+  /* 时钟字号：随视口缩放，保持极简大数字风格 */
+  --font-size-clock: clamp(3.5rem, 12vw, 7rem);
+
+  /* ---------- 间距 ---------- */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 4rem;
+
+  /* ---------- 圆角 ---------- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* ---------- 阴影（亮色：双层 = 短距贴地 + 长距扩散） ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 8px 24px -6px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 4px 8px -2px rgba(0, 0, 0, 0.08), 0 16px 40px -10px rgba(0, 0, 0, 0.18);
+  --shadow-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.3); /* 浮层顶部高光 */
+  --shadow-accent-glow: 0 0 0 3px var(--color-focus-ring); /* 强调态光晕 */
+
+  /* ---------- 动效 ---------- */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-theme: 200ms ease; /* 主题切换专用：仅颜色类属性使用 */
+  --transition-interact: 120ms cubic-bezier(0.16, 1, 0.3, 1); /* 按压反馈（hover 上浮 / active 按压） */
+  --transition-segment: 150ms ease; /* 分段控件选中态切换 */
+  --transition-menu: 160ms cubic-bezier(0.16, 1, 0.3, 1); /* 引擎菜单入场 */
+
+  /* ---------- 层级 ---------- */
+  --z-settings: 100;
+  --z-toast: 200; /* 高于抽屉与遮罩 */
+}
+
+/* ---------- 暗色主题 ---------- */
+[data-theme="dark"] {
+  --color-bg: #0d1017;
+  --color-bg-elevated: #171b23;
+  --color-text: #e8eaed;
+  --color-text-secondary: #9aa0a6;
+  --color-accent: #60a5fa;
+  --color-accent-hover: #bfdbfe;
+  --color-border: #333947;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-accent-soft: rgba(96, 165, 250, 0.16);
+  --color-text-tertiary: #6b7280;
+  --color-focus-ring: rgba(96, 165, 250, 0.55);
+  --color-button-bg: transparent;
+  --color-accent-contrast: #111318;
+  --color-warning: #f0ab33;
+  --color-success: #55be83;
+  --color-error: #f17878;
+  --color-wallpaper-overlay: rgba(0, 0, 0, 0.55); /* 壁纸遮罩（暗色下偏黑） */
+  --color-scrollbar-thumb: rgba(154, 160, 166, 0.3);
+  --color-scrollbar-thumb-hover: rgba(154, 160, 166, 0.5);
+  --color-slider-thumb: #ffffff;
+
+  /* 玻璃拟态（暗色）：blur 强度与 fallback 继承 :root 定义 */
+  --surface-glass-bg: rgba(28, 31, 38, 0.6);
+  --surface-glass-border: rgba(255, 255, 255, 0.08);
+  --surface-glass-highlight: rgba(255, 255, 255, 0.06);
+  /* 搜索框透明度可调：暗色 RGB 底色，alpha 沿用 :root 的 --search-box-alpha */
+  --surface-glass-rgb: 28, 31, 38;
+
+  /* 暗色下阴影靠纯黑大模糊低透明度，表面区分靠 1px 亮描边而非阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
