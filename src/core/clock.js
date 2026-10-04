@@ -8,7 +8,7 @@
  * - 页面不可见时暂停计时，回到前台立即补帧并恢复
  * - 切换语言时立即重渲染日期
  */
-import { formatTime } from '../utils/helpers.js?v=20261004f';
+import { formatTime } from '../utils/helpers.js';
 import { formatDate, onLanguageChange } from '../i18n/index.js';
 import { storage } from '../storage/storage.js';
 

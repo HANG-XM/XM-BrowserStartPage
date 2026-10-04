@@ -17,8 +17,8 @@
  * 扩展新语言：在 locales/ 下新增语言包文件，并在下方 LOCALES 中登记即可。
  */
 
-import zhCN from './locales/zh-CN.js?v=20261004f';
-import enUS from './locales/en-US.js?v=20261004f';
+import zhCN from './locales/zh-CN.js';
+import enUS from './locales/en-US.js';
 
 /** 已注册语言包：语言代码 → 语言包对象 */
 const LOCALES = {

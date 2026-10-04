@@ -6,8 +6,8 @@
  * 各分区通过调用 theme / wallpaper / search / i18n 模块的公开 API 实现。
  */
 
-import { t, getLanguage, setLanguage, onLanguageChange } from '../i18n/index.js?v=20261004f';
-import { getThemeMode, setThemeMode } from '../core/theme.js?v=20261004f';
+import { t, getLanguage, setLanguage, onLanguageChange } from '../i18n/index.js';
+import { getThemeMode, setThemeMode } from '../core/theme.js';
 import {
   getWallpaper,
   setWallpaper,
@@ -15,12 +15,12 @@ import {
   setBlur,
   SOLID_PRESETS,
   GRADIENT_PRESETS,
-} from '../core/wallpaper.js?v=20261004f';
-import { getSearchEngine, setSearchEngine, ENGINES } from '../core/search.js?v=20261004f';
-import { storage } from '../storage/storage.js?v=20261004f';
-import * as wallpaperStore from '../storage/wallpaper-store.js?v=20261004f';
-import { exportConfig, importConfig, validateBackup, readFileAsJson, APP_VERSION } from '../core/backup.js?v=20261004f';
-import { showToast } from '../ui/toast.js?v=20261004f';
+} from '../core/wallpaper.js';
+import { getSearchEngine, setSearchEngine, ENGINES } from '../core/search.js';
+import { storage } from '../storage/storage.js';
+import * as wallpaperStore from '../storage/wallpaper-store.js';
+import { exportConfig, importConfig, validateBackup, readFileAsJson, APP_VERSION } from '../core/backup.js';
+import { showToast } from '../ui/toast.js';
 
 /**
  * 初始化设置面板

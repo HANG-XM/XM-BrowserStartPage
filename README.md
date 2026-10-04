@@ -52,6 +52,12 @@ python -m http.server 8000
 
 浏览器访问 `http://localhost:8000` 即可。
 
+> 提交前跑一次 `bash scripts/check-imports.sh`，确认所有 import 一致。
+>
+> 入口资源（index.html 里的 main.js 和 main.css）带 `?v=` 版本号用于缓存失效；子模块的 import 说明符全部为裸路径。
+> 这意味着更新部署后，入口会重新下载，但子模块可能命中浏览器缓存。真正解决需要构建工具生成 hash 文件名，本项目坚守零依赖原则，暂不做。
+> 如遇更新不生效，请强制刷新（Ctrl+Shift+R）。
+
 ## 部署（Cloudflare Pages）
 
 1. 将本目录推送到 GitHub / GitLab 仓库
