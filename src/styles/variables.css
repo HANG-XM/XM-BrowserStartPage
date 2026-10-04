@@ -43,6 +43,22 @@
   --surface-glass-rgb: 255, 255, 255;
   --search-box-alpha: 0.65;
 
+  /* ---------- 引擎菜单专用表面（专项优化） ---------- */
+  --surface-menu-rgb: 255, 255, 255;
+  --surface-menu-alpha: 0.72;
+  --surface-menu-border: rgba(255, 255, 255, 0.6);
+  --color-accent-faint: rgba(59, 130, 246, 0.08);
+  --color-badge-bg: rgba(17, 19, 24, 0.06);
+  --color-badge-bg-hover: rgba(17, 19, 24, 0.10);
+
+  /* ---------- 菜单尺寸 / 时长（主题无关） ---------- */
+  --spacing-menu: 0.375rem;
+  --spacing-menu-gap: 0.125rem;
+  --size-menu-item: 2.5rem;
+  --width-menu-min: 12rem;
+  --height-menu-max: min(60vh, 20rem);
+  --transition-menu-exit: 100ms;
+
   /* ---------- 字体（仅系统字体栈，不引入外部字体） ---------- */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
@@ -81,7 +97,7 @@
   --transition-theme: 200ms ease; /* 主题切换专用：仅颜色类属性使用 */
   --transition-interact: 120ms cubic-bezier(0.16, 1, 0.3, 1); /* 按压反馈（hover 上浮 / active 按压） */
   --transition-segment: 150ms ease; /* 分段控件选中态切换 */
-  --transition-menu: 160ms cubic-bezier(0.16, 1, 0.3, 1); /* 引擎菜单入场 */
+  --transition-menu: 160ms; /* 引擎菜单入场时长（缓动由 transition-timing-function 单独声明） */
 
   /* ---------- 层级 ---------- */
   --z-settings: 100;
@@ -117,6 +133,14 @@
   --surface-glass-highlight: rgba(255, 255, 255, 0.06);
   /* 搜索框透明度可调：暗色 RGB 底色，alpha 沿用 :root 的 --search-box-alpha */
   --surface-glass-rgb: 28, 31, 38;
+
+  /* 引擎菜单专用表面（暗色） */
+  --surface-menu-rgb: 34, 38, 47;
+  --surface-menu-alpha: 0.78;
+  --surface-menu-border: rgba(255, 255, 255, 0.10);
+  --color-accent-faint: rgba(96, 165, 250, 0.10);
+  --color-badge-bg: rgba(255, 255, 255, 0.08);
+  --color-badge-bg-hover: rgba(255, 255, 255, 0.14);
 
   /* 暗色下阴影靠纯黑大模糊低透明度，表面区分靠 1px 亮描边而非阴影 */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);

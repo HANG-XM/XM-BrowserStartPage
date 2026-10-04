@@ -12,10 +12,59 @@ export default {
     title: 'XM Start Page',
   },
   greeting: {
-    dawn: 'Good night',       // 0-5
-    morning: 'Good morning',  // 5-12
-    afternoon: 'Good afternoon', // 12-18
-    evening: 'Good evening',  // 18-24
+    // One candidate pool per period: the first item is the clock anchor (it tells the time and
+    // can never be contradicted by what's outside the window); the rest are quiet statements.
+    // Pool length is the modulo base — adding or removing an item changes what every user sees today.
+    dawn: [
+      "The night's not over",  // 0-5
+      'The small hours',
+      'The quietest stretch',
+      "Sleep hasn't come",
+      'Nothing but screen light',
+      'Not a sound outside',
+      'Time moves slowly here',
+      'The occasional car goes by',
+    ],
+    morning: [
+      "Morning's here",        // 5-11
+      "Light's coming in",
+      'Birds are up',
+      "The air's still cool",
+      'The room is getting brighter',
+      'More sounds are coming in',
+      'There are cars on the street',
+      'Waking up slowly',
+    ],
+    noon: [
+      "It's noon",             // 11-13
+      'The light comes straight down',
+      'Shadows at their shortest',
+      "It's that time of day",
+      'Halfway through',
+      'Noon goes by fastest',
+      'A good hour to stare at nothing',
+      'Nobody feels like moving',
+    ],
+    afternoon: [
+      "It's afternoon",        // 13-18
+      "The light's going sideways",
+      'The sleepiest hours of the day',
+      'Afternoons always run slow',
+      "It's quiet outside",
+      'Still a long afternoon',
+      'The sun has moved to the desk',
+      'The hours are hard to fill',
+    ],
+    evening: [
+      "It's evening",          // 18-24
+      'The lights are all on',
+      "It's dark out",
+      "The street's gone quiet",
+      "That's it for today",
+      "The night's just starting",
+      'People are coming home',
+      'The loosest hour of the day',
+    ],
   },
   theme: {
     light: 'Light theme',

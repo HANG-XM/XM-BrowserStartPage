@@ -3,6 +3,7 @@
  *
  * 对外能力：
  * - t(key)                   按当前语言取文案，支持 "a.b.c" 点分隔路径
+ * - tList(key)               取「文案数组」（如每时段的问候语池），非数组时返回 []
  * - setLanguage(lang)        切换语言并持久化到 localStorage
  * - getLanguage()            获取当前语言代码
  * - getSupportedLanguages()  已注册语言列表（供设置面板渲染选项）
@@ -54,6 +55,9 @@ function resolve(pack, key) {
   return key.split('.').reduce((obj, k) => (obj == null ? undefined : obj[k]), pack);
 }
 
+/** 数组文案误用只提示一次，避免每分钟的高频调用刷屏 */
+let hasWarnedArrayMisuse = false;
+
 /**
  * 翻译函数
  * @param {string} key 点分隔的文案键，如 'greeting.morning'
@@ -64,12 +68,35 @@ export function t(key, params) {
   const pack = LOCALES[currentLang] || LOCALES[DEFAULT_LANG];
   let value = resolve(pack, key) ?? resolve(LOCALES[DEFAULT_LANG], key);
   if (value == null) return key;
+  // 容错：数组类文案应由 tList() 取用。此处误用则提示一次并降级为数组首项。
+  // 刻意不抛错——本页由用户直接打开，没有构建期与测试套件，抛错会中断整页脚本、导致首页空白。
+  if (Array.isArray(value)) {
+    if (!hasWarnedArrayMisuse) {
+      hasWarnedArrayMisuse = true;
+      console.warn(`[i18n] t() 取到了数组文案「${key}」，应改用 tList()；本次已降级为数组首项。`);
+    }
+    value = value.length ? value[0] : key;
+  }
   if (params && typeof value === 'string') {
     value = value.replace(/\{(\w+)\}/g, (_, name) => {
       return params[name] != null ? String(params[name]) : '';
     });
   }
   return value;
+}
+
+/**
+ * 取文案数组（每个元素都是一条候选文案）
+ *
+ * 纯访问器：只负责把数组取出来，不做任何「选哪一条」的策略——
+ * 选取策略属于业务层（见 core/greeting.js 的确定性哈希），i18n 层不掺业务判断。
+ * @param {string} key 点分隔的文案键，如 'greeting.morning'
+ * @returns {string[]} 文案数组；当前语言与默认语言都不是数组时返回空数组
+ */
+export function tList(key) {
+  const pack = LOCALES[currentLang] || LOCALES[DEFAULT_LANG];
+  const value = resolve(pack, key) ?? resolve(LOCALES[DEFAULT_LANG], key);
+  return Array.isArray(value) ? value : [];
 }
 
 /** 获取当前语言代码 */

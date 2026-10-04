@@ -192,14 +192,24 @@ body {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
 }
+/* 引擎图标：徽章化（菜单内与 toggle 内通用） */
 .engine-icon {
   display: grid;
   place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: var(--font-size-base);
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.8rem;
   font-weight: 600;
   line-height: 1;
+  color: var(--color-text-secondary);
+  background-color: var(--color-badge-bg);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-interact),
+              color var(--transition-interact);
+}
+.engine-toggle:hover .engine-icon {
+  background-color: var(--color-badge-bg-hover);
 }
 
 /* 搜索输入框 */
@@ -223,59 +233,127 @@ body {
   position: absolute;
   top: calc(100% + var(--spacing-xs));
   left: 0;
-  min-width: 10rem;
-  padding: var(--spacing-xs);
-  background-color: rgba(var(--surface-glass-rgb), var(--search-box-alpha));
-  border: 1px solid var(--surface-glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-menu-gap);
+  min-width: var(--width-menu-min);
+  max-width: calc(100vw - 2 * var(--spacing-md));
+  max-height: var(--height-menu-max);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-menu);
+  background-color: rgba(var(--surface-menu-rgb), var(--surface-menu-alpha));
+  border: 1px solid var(--surface-menu-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg), inset 0 1px 0 var(--surface-glass-highlight);
   z-index: calc(var(--z-settings) - 1);
-  /* 与搜索框视为同一交互单元，共用全强度 blur 预算 */
+  /* 全强度 blur（与搜索框共用同屏预算，菜单打开时搜索框降级） */
   -webkit-backdrop-filter: var(--surface-glass-blur);
   backdrop-filter: var(--surface-glass-blur);
-  /* 入场动画：每次从 hidden 变为可见时重播 */
   transform-origin: top left;
-  animation: menu-in var(--transition-menu);
+  /* 入场/出场过渡：长手写避免旧浏览器因 display 丢弃整条规则 */
+  transition-property: opacity, transform, display;
+  transition-duration: var(--transition-menu);
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-behavior: allow-discrete;
+  /* 滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb) transparent;
 }
-@keyframes menu-in {
-  from {
+.engine-menu::-webkit-scrollbar {
+  width: 6px;
+}
+.engine-menu::-webkit-scrollbar-thumb {
+  background-color: var(--color-scrollbar-thumb);
+  border-radius: var(--radius-full);
+}
+.engine-menu::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-scrollbar-thumb-hover);
+}
+.engine-menu[hidden] {
+  opacity: 0;
+  transform: scale(0.98) translateY(-6px);
+  display: none;
+  transition-duration: var(--transition-menu-exit);
+}
+/* 入场起始态：@starting-style 不支持时退化为瞬时显示 */
+@starting-style {
+  .engine-menu:not([hidden]) {
     opacity: 0;
-    transform: scale(0.95) translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(0.98) translateY(-6px);
   }
 }
+
 .engine-menu-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
+  min-height: var(--size-menu-item);
+  padding: 0 var(--spacing-sm);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-text);
   background-color: transparent;
   text-align: left;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-interact);
 }
 .engine-menu-item:hover {
   background-color: var(--color-accent-soft);
 }
+.engine-menu-item:hover .engine-icon {
+  background-color: var(--color-badge-bg-hover);
+}
 .engine-menu-item:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
+  background-color: var(--color-accent-soft);
 }
 .engine-menu-item.selected {
   color: var(--color-accent);
+  background-color: var(--color-accent-faint);
 }
-.engine-menu-item .engine-icon {
+.engine-menu-item.selected .engine-icon {
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+/* 选中态对勾：纯 CSS，不占布局额外空间（flex-shrink:0，margin-left:auto 推至右端） */
+.engine-menu-item.selected::after {
+  content: '';
   flex-shrink: 0;
+  margin-left: auto;
+  width: 0.7rem;
+  height: 0.4rem;
+  border-left: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
+  transform: rotate(-45deg);
 }
 .engine-menu-item .engine-name {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 快捷键键帽 */
+.engine-menu-shortcut {
+  flex-shrink: 0;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.7rem;
+  font-family: monospace;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  text-align: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+.engine-menu-item.selected .engine-menu-shortcut {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 /* Tab 栏 */
@@ -805,6 +883,14 @@ body {
 .toast--warning::before { background-color: var(--color-warning); }
 .toast--error::before { background-color: var(--color-error); }
 
+/* ---------- 同屏全强度 blur 预算：引擎菜单打开时，搜索框降为中强度（菜单占全强度） ---------- */
+/* body:has 前缀确保不误伤搜索框单独 focus 时的全强度态 */
+body:has(#engine-menu:not([hidden])) .search-box,
+body:has(#engine-menu:not([hidden])) .search-box:focus-within {
+  -webkit-backdrop-filter: var(--surface-glass-blur-soft);
+  backdrop-filter: var(--surface-glass-blur-soft);
+}
+
 /* ---------- 同屏全强度 blur 预算：设置面板打开时，搜索框 + 引擎菜单降为中强度 ---------- */
 html:has(.settings-panel:not([hidden])) .search-box,
 html:has(.settings-panel:not([hidden])) .search-box:focus-within,
@@ -905,7 +991,9 @@ html.no-blur .toast {
 @media (prefers-reduced-motion: reduce) {
   .search-box,
   .engine-toggle,
+  .engine-menu,
   .engine-menu-item,
+  .engine-icon,
   #wallpaper,
   #wallpaper-overlay,
   .settings-panel,
@@ -941,8 +1029,5 @@ html.no-blur .toast {
   .wallpaper-slider-row input[type="range"]::-webkit-slider-thumb,
   .wallpaper-slider-row input[type="range"]::-moz-range-thumb {
     transition: none;
-  }
-  .engine-menu {
-    animation: none;
   }
 }

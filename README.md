@@ -27,7 +27,7 @@ XM BrowserStartPage/
 │   ├── core/
 │   │   ├── clock.js        # 时间与日期模块（占位）
 │   │   ├── search.js       # 搜索模块（占位）
-│   │   └── greeting.js     # 问候语模块（占位）
+│   │   └── greeting.js     # 问候语模块（5 时段文案池 + 日期哈希确定性选取）
 │   ├── settings/
 │   │   └── settings.js     # 设置面板模块（占位）
 │   ├── storage/

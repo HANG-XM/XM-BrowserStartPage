@@ -26,7 +26,7 @@ export const ENGINES = [
   {
     id: 'bing',
     url: 'https://www.bing.com/search?q={query}',
-    icon: 'B',
+    icon: 'b',
   },
   {
     id: 'yandex',
@@ -169,13 +169,13 @@ export function initSearch() {
   /** 构建下拉菜单 DOM */
   function buildMenu() {
     menu.innerHTML = '';
-    ENGINES.forEach((engine) => {
+    ENGINES.forEach((engine, index) => {
       const item = document.createElement('button');
       item.className = 'engine-menu-item';
       item.type = 'button';
       item.role = 'option';
       item.setAttribute('data-engine', engine.id);
-      item.innerHTML = `<span class="engine-icon">${engine.icon}</span><span class="engine-name">${t(`search.engines.${engine.id}`)}</span>`;
+      item.innerHTML = `<span class="engine-icon">${engine.icon}</span><span class="engine-name">${t(`search.engines.${engine.id}`)}</span><span class="engine-menu-shortcut">${index + 1}</span>`;
       item.addEventListener('click', () => selectEngine(engine.id));
       menu.appendChild(item);
     });
