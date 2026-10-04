@@ -110,6 +110,10 @@ export default {
       system: 'System',
     },
     searchOpacity: 'Search box opacity',
+    // Order must strictly match SOLID_PRESETS / GRADIENT_PRESETS in wallpaper.js
+    colorPreset: ['Light gray', 'Ink black', 'Mist blue', 'Cherry pink', 'Mint green', 'Cream', 'Slate blue', 'Teal'],
+    gradientPreset: ['Violet purple gradient', 'Sunset gradient', 'Fresh gradient', 'Sky blue gradient', 'Deep sea gradient', 'Graphite gradient'],
+    customColorLabel: 'Custom color',
     engine: 'Default search engine',
     language: {
       zh: '简体中文',

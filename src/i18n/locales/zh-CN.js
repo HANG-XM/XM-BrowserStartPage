@@ -109,6 +109,10 @@ export default {
       system: '跟随系统',
     },
     searchOpacity: '搜索框透明度',
+    // 顺序必须与 wallpaper.js 的 SOLID_PRESETS / GRADIENT_PRESETS 数组严格对应
+    colorPreset: ['浅灰', '墨黑', '雾蓝', '樱粉', '薄荷绿', '米黄', '石板蓝', '深青'],
+    gradientPreset: ['紫罗兰渐变', '日落渐变', '清新渐变', '天蓝渐变', '深海渐变', '石墨渐变'],
+    customColorLabel: '自定义颜色',
     engine: '默认搜索引擎',
     language: {
       zh: '简体中文',

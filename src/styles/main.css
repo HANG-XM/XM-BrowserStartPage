@@ -23,7 +23,7 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  /* 壁纸切换时平滑过渡 */
+  /* 纯色（background-color）切换有平滑过渡；图片/渐变的 background-image 是离散属性，切换时为硬切（已知限制，候补项） */
   transition: background var(--transition-normal), filter var(--transition-normal);
 }
 #wallpaper-overlay {
@@ -335,25 +335,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* 快捷键键帽 */
-.engine-menu-shortcut {
-  flex-shrink: 0;
-  min-width: 1.25rem;
-  padding: 0.1rem 0.35rem;
-  font-size: 0.7rem;
-  font-family: monospace;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.4;
-  color: var(--color-text-secondary);
-  text-align: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-.engine-menu-item.selected .engine-menu-shortcut {
-  color: var(--color-accent-active);
-  border-color: var(--color-accent-active);
 }
 
 /* Tab 栏 */

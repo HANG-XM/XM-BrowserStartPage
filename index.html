@@ -6,6 +6,9 @@
   <meta name="description" content="XM BrowserStartPage —— 极简浏览器起始页：本地优先、零外部 API、零后端、零账号。" />
   <!-- 告知浏览器本页支持亮 / 暗两种配色，表单控件等自动适配 -->
   <meta name="color-scheme" content="light dark" />
+  <!-- 移动端地址栏颜色跟随主题 -->
+  <meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0d1017" media="(prefers-color-scheme: dark)" />
   <title>XM 起始页</title>
 
   <!--
@@ -30,12 +33,12 @@
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261004i" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261004i" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261004i" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261004j" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261004j" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261004j" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261004i"></script>
+  <script type="module" src="./src/main.js?v=20261004j"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
@@ -77,6 +80,7 @@
                     aria-label="切换搜索引擎"></button>
             <input class="search-input" id="search-input" type="text"
                    autocomplete="off" autocapitalize="off" spellcheck="false"
+                   enterkeyhint="search"
                    placeholder="搜索…" />
             <!-- 引擎下拉菜单 -->
             <div class="engine-menu" id="engine-menu" role="listbox" hidden></div>

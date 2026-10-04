@@ -162,12 +162,13 @@ export function initSettings() {
     solidPanel.className = 'wallpaper-tab-panel';
     const solidGrid = document.createElement('div');
     solidGrid.className = 'swatch-grid';
-    SOLID_PRESETS.forEach((color) => {
+    SOLID_PRESETS.forEach((color, index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'swatch';
       btn.style.background = color;
-      btn.setAttribute('aria-label', color);
+      // 顺序与 SOLID_PRESETS 数组严格对应
+      btn.setAttribute('aria-label', t(`settings.colorPreset.${index}`));
       btn.addEventListener('click', () => {
         setWallpaper({ type: 'solid', value: color });
         renderWpPanels();
@@ -182,6 +183,7 @@ export function initSettings() {
     colorRow.className = 'color-picker-row';
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
+    colorInput.setAttribute('aria-label', t('settings.customColorLabel'));
     colorInput.value = wp.type === 'solid' && wp.value ? wp.value : '#f5f6f8';
     colorInput.addEventListener('input', () => {
       setWallpaper({ type: 'solid', value: colorInput.value });
@@ -199,12 +201,13 @@ export function initSettings() {
     gradientPanel.className = 'wallpaper-tab-panel';
     const gradientGrid = document.createElement('div');
     gradientGrid.className = 'swatch-grid';
-    GRADIENT_PRESETS.forEach((gradient) => {
+    GRADIENT_PRESETS.forEach((gradient, index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'swatch';
       btn.style.background = gradient;
-      btn.setAttribute('aria-label', gradient);
+      // 顺序与 GRADIENT_PRESETS 数组严格对应
+      btn.setAttribute('aria-label', t(`settings.gradientPreset.${index}`));
       btn.dataset.value = gradient;
       btn.addEventListener('click', () => {
         setWallpaper({ type: 'gradient', value: gradient });

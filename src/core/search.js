@@ -176,7 +176,7 @@ export function initSearch() {
       item.type = 'button';
       item.role = 'option';
       item.setAttribute('data-engine', engine.id);
-      item.innerHTML = `<span class="engine-icon">${engine.icon}</span><span class="engine-name">${t(`search.engines.${engine.id}`)}</span><span class="engine-menu-shortcut">${index + 1}</span>`;
+      item.innerHTML = `<span class="engine-icon">${engine.icon}</span><span class="engine-name">${t(`search.engines.${engine.id}`)}</span>`;
       item.addEventListener('click', () => selectEngine(engine.id));
       menu.appendChild(item);
     });
