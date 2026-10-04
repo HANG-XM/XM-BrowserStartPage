@@ -32,6 +32,8 @@
   --color-scrollbar-thumb: rgba(107, 114, 128, 0.3);  /* 滚动条 thumb（次级文字色 0.3） */
   --color-scrollbar-thumb-hover: rgba(107, 114, 128, 0.5);
   --color-slider-thumb: #ffffff;                       /* 滑块 thumb（暗色下仍白） */
+  --color-toggle-bg: rgba(17, 19, 24, 0.16);           /* 开关关闭态轨道 */
+  --color-toggle-knob: #ffffff;                        /* 开关圆点 */
 
   /* ---------- 玻璃拟态表面（批 3） ---------- */
   --surface-glass-bg: rgba(255, 255, 255, 0.65);
@@ -128,6 +130,8 @@
   --color-scrollbar-thumb: rgba(154, 160, 166, 0.3);
   --color-scrollbar-thumb-hover: rgba(154, 160, 166, 0.5);
   --color-slider-thumb: #ffffff;
+  --color-toggle-bg: rgba(255, 255, 255, 0.18);
+  --color-toggle-knob: #f1f3f7;
 
   /* 玻璃拟态（暗色）：blur 强度与 fallback 继承 :root 定义 */
   --surface-glass-bg: rgba(28, 31, 38, 0.6);

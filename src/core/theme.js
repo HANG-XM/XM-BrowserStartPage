@@ -43,9 +43,16 @@ export function setThemeMode(mode) {
   applyTheme();
 }
 
-/** 将解析结果写入 <html data-theme> */
+/** 将解析结果写入 <html data-theme>，并同步移动端地址栏颜色 */
 function applyTheme() {
-  document.documentElement.dataset.theme = getResolvedTheme();
+  const resolved = getResolvedTheme();
+  document.documentElement.dataset.theme = resolved;
+  // 从 CSS 变量取页面背景色（唯一颜色事实源，避免壁纸等场景取错色）
+  const bg = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-bg').trim();
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+    m.setAttribute('content', bg);
+  });
 }
 
 /** 系统主题变化时重解析（仅在 system 模式下需要响应） */

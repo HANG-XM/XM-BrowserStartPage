@@ -36,7 +36,7 @@ export const ENGINES = [
   {
     id: 'baidu',
     url: 'https://www.baidu.com/s?wd={query}',
-    icon: 'B',
+    icon: '百',
   },
 ];
 
@@ -326,10 +326,12 @@ export function initSearch() {
   // ----------------------------------------------------------
   // 自动聚焦（页面加载后聚焦输入框）
   // ----------------------------------------------------------
-  // 使用 requestAnimationFrame 确保 DOM 已稳定
-  requestAnimationFrame(() => {
-    input.focus();
-  });
+  // 使用 requestAnimationFrame 确保 DOM 已稳定；autoFocus 关闭时不聚焦
+  if (storage.load().autoFocus !== false) {
+    requestAnimationFrame(() => {
+      input.focus();
+    });
+  }
 
   // ----------------------------------------------------------
   // 初始化

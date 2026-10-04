@@ -17,6 +17,7 @@ import {
   GRADIENT_PRESETS,
 } from '../core/wallpaper.js';
 import { getSearchEngine, setSearchEngine, ENGINES } from '../core/search.js';
+import { refreshClock } from '../core/clock.js';
 import { storage } from '../storage/storage.js';
 import * as wallpaperStore from '../storage/wallpaper-store.js';
 import { exportConfig, importConfig, validateBackup, readFileAsJson, APP_VERSION } from '../core/backup.js';
@@ -114,6 +115,30 @@ export function initSettings() {
       )
     );
     section.appendChild(themeWrap);
+
+    // 时间格式
+    const hourWrap = document.createElement('div');
+    hourWrap.className = 'settings-field';
+    const hourLabel = document.createElement('span');
+    hourLabel.className = 'settings-label';
+    hourLabel.textContent = t('settings.hourFormat');
+    hourWrap.appendChild(hourLabel);
+    hourWrap.appendChild(
+      createSegmented(
+        [
+          { value: 'auto', label: t('settings.hourFormatAuto') },
+          { value: '12', label: t('settings.hourFormat12') },
+          { value: '24', label: t('settings.hourFormat24') },
+        ],
+        storage.load().hourFormat,
+        (val) => {
+          storage.update({ hourFormat: val });
+          refreshClock();      // 立即重读制式并补帧
+          render();           // 刷新 segmented 选中态（焦点由 render 恢复到按钮）
+        }
+      )
+    );
+    section.appendChild(hourWrap);
 
     // 壁纸类型 Tab
     const wp = getWallpaper();
@@ -432,6 +457,32 @@ export function initSettings() {
       )
     );
     section.appendChild(field);
+
+    // 自动聚焦搜索框开关
+    const focusField = document.createElement('div');
+    focusField.className = 'settings-field';
+    const focusRow = document.createElement('label');
+    focusRow.className = 'settings-toggle-row';
+    const focusCheckbox = document.createElement('input');
+    focusCheckbox.type = 'checkbox';
+    focusCheckbox.className = 'settings-toggle';
+    focusCheckbox.checked = storage.load().autoFocus !== false;
+    const focusText = document.createElement('span');
+    focusText.className = 'settings-toggle-text';
+    focusText.textContent = t('settings.autoFocus');
+    focusRow.appendChild(focusCheckbox);
+    focusRow.appendChild(focusText);
+    focusField.appendChild(focusRow);
+    const focusHint = document.createElement('div');
+    focusHint.className = 'settings-toggle-hint';
+    focusHint.textContent = t('settings.autoFocusHint');
+    focusField.appendChild(focusHint);
+    // 切换不触发 render：仅持久化，焦点保持在开关上
+    focusCheckbox.addEventListener('change', () => {
+      storage.update({ autoFocus: focusCheckbox.checked });
+    });
+    section.appendChild(focusField);
+
     return section;
   }
 

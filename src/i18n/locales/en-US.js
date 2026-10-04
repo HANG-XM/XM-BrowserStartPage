@@ -114,7 +114,13 @@ export default {
     colorPreset: ['Light gray', 'Ink black', 'Mist blue', 'Cherry pink', 'Mint green', 'Cream', 'Slate blue', 'Teal'],
     gradientPreset: ['Violet purple gradient', 'Sunset gradient', 'Fresh gradient', 'Sky blue gradient', 'Deep sea gradient', 'Graphite gradient'],
     customColorLabel: 'Custom color',
+    hourFormat: 'Time format',
+    hourFormatAuto: 'Auto',
+    hourFormat12: '12-hour',
+    hourFormat24: '24-hour',
     engine: 'Default search engine',
+    autoFocus: 'Auto-focus search box',
+    autoFocusHint: 'Focus the search box on load (recommended off on touch devices to avoid the keyboard popping up)',
     language: {
       zh: '简体中文',
       en: 'English',

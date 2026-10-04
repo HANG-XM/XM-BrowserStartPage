@@ -113,7 +113,13 @@ export default {
     colorPreset: ['浅灰', '墨黑', '雾蓝', '樱粉', '薄荷绿', '米黄', '石板蓝', '深青'],
     gradientPreset: ['紫罗兰渐变', '日落渐变', '清新渐变', '天蓝渐变', '深海渐变', '石墨渐变'],
     customColorLabel: '自定义颜色',
+    hourFormat: '时间格式',
+    hourFormatAuto: '自动',
+    hourFormat12: '12 小时制',
+    hourFormat24: '24 小时制',
     engine: '默认搜索引擎',
+    autoFocus: '自动聚焦搜索框',
+    autoFocusHint: '进入页面时自动聚焦搜索框（触屏设备建议关闭，避免自动弹出软键盘）',
     language: {
       zh: '简体中文',
       en: 'English',

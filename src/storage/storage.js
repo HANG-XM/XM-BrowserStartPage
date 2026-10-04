@@ -10,15 +10,21 @@
  */
 
 const STORAGE_KEY = 'xm-startpage:config';
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
+
+/** 是否为触屏设备：触屏默认不自动聚焦搜索框（避免移动端一进页面就弹软键盘） */
+function getDefaultAutoFocus() {
+  return !window.matchMedia('(pointer: coarse)').matches;
+}
 
 /** 默认配置：首次运行或读取失败时的兜底值 */
 const DEFAULT_CONFIG = {
   version: STORAGE_VERSION,
   theme: 'system',          // 'light' | 'dark' | 'system'
-  hourFormat: '24',         // 时钟制式：'12' | '24'
+  hourFormat: '24',         // 时钟制式：'auto' | '12' | '24'
   searchEngine: 'bing',     // 默认搜索引擎标识
   searchBoxTransparency: 65, // 搜索框玻璃底透明度（UI 值 0~100，0=不透明，100=完全透明）
+  autoFocus: getDefaultAutoFocus(), // 进入页面时是否自动聚焦搜索框（触屏默认关闭）
   wallpaper: {
     type: 'solid',          // 'solid' | 'gradient' | 'local'
     value: '',              // solid=CSS颜色；gradient=CSS渐变；local=IndexedDB 图片 id；空串=无壁纸
@@ -28,13 +34,23 @@ const DEFAULT_CONFIG = {
 };
 
 /**
- * 版本迁移占位：配置结构变更时在此按旧版本号逐级升级
+ * 版本迁移：配置结构变更时在此按旧版本号逐级升级
  * @param {object} data 从 localStorage 读出的旧配置
  * @returns {object} 迁移到当前版本的配置
  */
 function migrate(data) {
-  // 示例：if (data.version < 1) { ...升级字段... }
-  return { ...DEFAULT_CONFIG, ...data, version: STORAGE_VERSION };
+  // version 缺失（最早版本）按 1 处理
+  const oldVersion = typeof data.version === 'number' ? data.version : 1;
+  // 未来版本：原样返回，不做降级处理
+  if (oldVersion > STORAGE_VERSION) return data;
+
+  const next = { ...DEFAULT_CONFIG, ...data };
+  if (oldVersion < 2) {
+    // v1 → v2：新增 autoFocus 字段
+    if (next.autoFocus === undefined) next.autoFocus = getDefaultAutoFocus();
+  }
+  next.version = STORAGE_VERSION;
+  return next;
 }
 
 export const storage = {
@@ -46,7 +62,14 @@ export const storage = {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return { ...DEFAULT_CONFIG };
-      return migrate(JSON.parse(raw));
+      const parsed = JSON.parse(raw);
+      const oldVersion = typeof parsed.version === 'number' ? parsed.version : 1;
+      const migrated = migrate(parsed);
+      // 发生过版本迁移时立即写回（未来版本不写回，避免降级）
+      if (oldVersion < STORAGE_VERSION && oldVersion <= STORAGE_VERSION) {
+        this.save(migrated);
+      }
+      return migrated;
     } catch (err) {
       console.error('[storage] 读取配置失败，已回退默认配置：', err);
       return { ...DEFAULT_CONFIG };
