@@ -15,6 +15,7 @@
 import { storage } from '../storage/storage.js';
 import * as wallpaperStore from '../storage/wallpaper-store.js';
 import { t } from '../i18n/index.js';
+import { showToast } from '../ui/toast.js';
 
 /** 默认壁纸配置 */
 const DEFAULT_WALLPAPER = { type: 'solid', value: '', overlay: 0.3, blur: 0 };
@@ -36,8 +37,6 @@ const LEGACY_TYPE_MAP = { color: 'solid', image: 'local', url: 'solid' };
 let currentConfig = normalizeConfig(storage.load().wallpaper);
 let currentObjectUrl = null; // 当前壁纸的 Object URL（type=local）
 let applySeq = 0;            // 异步应用序号，防止快速切换时的竞态
-let hintTimer = null;
-const listeners = new Set();
 
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
@@ -78,7 +77,6 @@ export function setWallpaper(config) {
   if (prev.type === 'local' && prev.value && prev.value !== currentConfig.value) {
     wallpaperStore.deleteImage(prev.value).catch((err) => console.error('[wallpaper] 清理旧图片失败：', err));
   }
-  listeners.forEach((fn) => fn(getWallpaper()));
 }
 
 /** 设置遮罩透明度（0~1） */
@@ -86,7 +84,6 @@ export function setOverlay(opacity) {
   currentConfig.overlay = clamp(opacity, 0, 1);
   applyEffects();
   scheduleSave();
-  notifyChange();
 }
 
 /** 设置背景模糊（0~20px） */
@@ -94,13 +91,6 @@ export function setBlur(px) {
   currentConfig.blur = clamp(px, 0, 20);
   applyEffects();
   scheduleSave();
-  notifyChange();
-}
-
-/** 订阅壁纸变化，返回取消订阅函数 */
-export function onWallpaperChange(fn) {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
 }
 
 // ============================================================
@@ -135,7 +125,7 @@ export async function applyWallpaper() {
       background = `url("${currentObjectUrl}")`;
     } catch (err) {
       console.error('[wallpaper] 本地图片加载失败，回退默认背景：', err);
-      showHint(t('wallpaper.loadError'));
+      showToast(t('wallpaper.loadError'), 'warning');
       // 回退：清空壁纸引用并持久化
       currentConfig = { ...currentConfig, type: 'solid', value: '' };
       storage.update({ wallpaper: currentConfig });
@@ -143,9 +133,11 @@ export async function applyWallpaper() {
     }
   }
 
-  layer.dataset.wallpaperType = type; // 供 CSS 按壁纸类型控制噪点纹理（仅 solid/gradient 显示）
+  // catch 分支可能已把 currentConfig 改写为 solid 回退，后续必须读最新的 currentConfig.type
+  const finalType = currentConfig.type;
+  layer.dataset.wallpaperType = finalType; // 供 CSS 按壁纸类型控制噪点纹理（仅 solid/gradient 显示）
   // 按类型分属性写，避免 background 简写属性覆盖 CSS 的 background-size/position/repeat
-  if (type === 'solid') {
+  if (finalType === 'solid') {
     layer.style.backgroundColor = background;
     layer.style.backgroundImage = '';
   } else {
@@ -153,7 +145,6 @@ export async function applyWallpaper() {
     layer.style.backgroundImage = background; // gradient / local 均走 backgroundImage
   }
   applyEffects();
-  document.body.classList.toggle('has-wallpaper', hasActiveWallpaper());
 }
 
 /** 仅应用遮罩与模糊（不重载背景图，供滑块高频调用） */
@@ -174,23 +165,6 @@ function scheduleSave() {
   saveTimer = setTimeout(() => storage.update({ wallpaper: currentConfig }), 300);
 }
 
-function notifyChange() {
-  listeners.forEach((fn) => fn(getWallpaper()));
-}
-
-/** 面板提示（短暂显示，4 秒后自动隐藏） */
-function showHint(text) {
-  console.warn('[wallpaper]', text);
-  const hintEl = document.getElementById('wallpaper-hint');
-  if (!hintEl) return;
-  hintEl.textContent = text;
-  hintEl.hidden = false;
-  clearTimeout(hintTimer);
-  hintTimer = setTimeout(() => {
-    hintEl.hidden = true;
-  }, 4000);
-}
-
 // ============================================================
 // 初始化
 // ============================================================
@@ -203,7 +177,6 @@ export function initWallpaper() {
   applyWallpaper();
 
   return function cleanupWallpaper() {
-    clearTimeout(hintTimer);
     clearTimeout(saveTimer);
     if (currentObjectUrl) {
       URL.revokeObjectURL(currentObjectUrl);

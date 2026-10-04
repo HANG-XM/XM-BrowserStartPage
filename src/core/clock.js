@@ -8,7 +8,7 @@
  * - 页面不可见时暂停计时，回到前台立即补帧并恢复
  * - 切换语言时立即重渲染日期
  */
-import { formatTime } from '../utils/helpers.js';
+import { formatTime } from '../utils/helpers.js?v=20261004f';
 import { formatDate, onLanguageChange } from '../i18n/index.js';
 import { storage } from '../storage/storage.js';
 
@@ -21,13 +21,14 @@ export function initClock() {
   const dateEl = document.getElementById('date');
   if (!clockEl || !dateEl) return () => {};
 
+  // hourFormat 无 UI 控件修改，init 时读一次缓存即可
+  const { hourFormat } = storage.load();
   let timerId = null;
 
   /** 渲染一帧：时间 + 日期 */
   function render() {
     const now = new Date();
-    // 每次渲染都读取最新配置，设置变更后一秒内即可生效
-    const hour12 = storage.load().hourFormat === '12';
+    const hour12 = hourFormat === '12';
     clockEl.textContent = formatTime(now, hour12);
     // datetime 属性始终使用 24 小时制，保证语义化取值稳定
     clockEl.setAttribute('datetime', formatTime(now));

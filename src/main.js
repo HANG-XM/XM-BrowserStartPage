@@ -5,19 +5,18 @@
  * 不包含任何具体业务逻辑。
  */
 
-import { initI18n } from './i18n/index.js?v=20261004';
-import { initClock } from './core/clock.js?v=20261004';
-import { initGreeting } from './core/greeting.js?v=20261004';
-import { initSearch } from './core/search.js?v=20261004';
-import { initTheme } from './core/theme.js?v=20261004';
-import { initWallpaper } from './core/wallpaper.js?v=20261004';
-import { initSettings } from './settings/settings.js?v=20261004c';
-import { storage } from './storage/storage.js?v=20261004';
+import { initI18n } from './i18n/index.js?v=20261004f';
+import { initClock } from './core/clock.js?v=20261004f';
+import { initGreeting } from './core/greeting.js?v=20261004f';
+import { initSearch } from './core/search.js?v=20261004f';
+import { initTheme } from './core/theme.js?v=20261004f';
+import { initWallpaper } from './core/wallpaper.js?v=20261004f';
+import { initSettings } from './settings/settings.js?v=20261004f';
+import { storage } from './storage/storage.js?v=20261004f';
 
 function bootstrap() {
   // 读取本地配置（含 version 字段），后续据此恢复主题 / 壁纸 / 制式等
   const config = storage.load();
-  console.debug('[XM] 已加载本地配置：', config);
 
   // 1. 初始化多语言（同步 <html lang> 与页面标题），必须先于各渲染模块
   initI18n();

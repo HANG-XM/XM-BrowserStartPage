@@ -17,6 +17,7 @@
   --color-text-secondary: #6b7280;  /* 次要文字 */
   --color-accent: #3b82f6;          /* 强调色 */
   --color-accent-hover: #2563eb;    /* 强调色 hover */
+  --color-accent-active: #1d4ed8;   /* 强调色选中态文字（对比度 ≥ 4.5:1） */
   --color-border: #e5e7eb;          /* 边框 */
   --color-overlay: rgba(0, 0, 0, 0.4); /* 遮罩（设置面板等） */
   --color-accent-soft: rgba(59, 130, 246, 0.12); /* 选中项背景 / hover 高亮 */
@@ -112,6 +113,7 @@
   --color-text-secondary: #9aa0a6;
   --color-accent: #60a5fa;
   --color-accent-hover: #bfdbfe;
+  --color-accent-active: #60a5fa;   /* 选中态文字（暗色下 #60a5fa 对比度已充足） */
   --color-border: #333947;
   --color-overlay: rgba(0, 0, 0, 0.6);
   --color-accent-soft: rgba(96, 165, 250, 0.16);

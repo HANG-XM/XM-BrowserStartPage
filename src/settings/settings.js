@@ -6,8 +6,8 @@
  * 各分区通过调用 theme / wallpaper / search / i18n 模块的公开 API 实现。
  */
 
-import { t, getLanguage, setLanguage, onLanguageChange } from '../i18n/index.js?v=20261004';
-import { getThemeMode, setThemeMode } from '../core/theme.js?v=20261004';
+import { t, getLanguage, setLanguage, onLanguageChange } from '../i18n/index.js?v=20261004f';
+import { getThemeMode, setThemeMode } from '../core/theme.js?v=20261004f';
 import {
   getWallpaper,
   setWallpaper,
@@ -15,12 +15,12 @@ import {
   setBlur,
   SOLID_PRESETS,
   GRADIENT_PRESETS,
-} from '../core/wallpaper.js?v=20261004';
-import { getSearchEngine, setSearchEngine, ENGINES } from '../core/search.js?v=20261004';
-import { storage } from '../storage/storage.js?v=20261004';
-import * as wallpaperStore from '../storage/wallpaper-store.js?v=20261004';
-import { exportConfig, importConfig, validateBackup, readFileAsJson, APP_VERSION } from '../core/backup.js?v=20261004';
-import { showToast } from '../ui/toast.js?v=20261004';
+} from '../core/wallpaper.js?v=20261004f';
+import { getSearchEngine, setSearchEngine, ENGINES } from '../core/search.js?v=20261004f';
+import { storage } from '../storage/storage.js?v=20261004f';
+import * as wallpaperStore from '../storage/wallpaper-store.js?v=20261004f';
+import { exportConfig, importConfig, validateBackup, readFileAsJson, APP_VERSION } from '../core/backup.js?v=20261004f';
+import { showToast } from '../ui/toast.js?v=20261004f';
 
 /**
  * 初始化设置面板
@@ -37,7 +37,7 @@ export function initSettings() {
 
   let isOpen = false;
 
-  /** 将搜索框透明度写入 CSS 变量（供 .search-box / .engine-menu 使用） */
+  /** 将搜索框透明度写入 CSS 变量（仅 .search-box 使用） */
   function applySearchBoxAlpha(val) {
     const v = val ?? storage.load().searchBoxAlpha ?? 0.65;
     document.documentElement.style.setProperty('--search-box-alpha', v);
@@ -68,7 +68,7 @@ export function initSettings() {
   }
 
   /** 分段控件（单选按钮组样式） */
-  function createSegmented(options, current, onSelect, labelPrefix) {
+  function createSegmented(options, current, onSelect) {
     const wrap = document.createElement('div');
     wrap.className = 'segmented';
     options.forEach((opt) => {
@@ -82,12 +82,6 @@ export function initSettings() {
       btn.addEventListener('click', () => onSelect(opt.value));
       wrap.appendChild(btn);
     });
-    if (labelPrefix) {
-      const label = document.createElement('div');
-      label.className = 'segmented-label';
-      label.textContent = labelPrefix;
-      wrap.prepend(label);
-    }
     return wrap;
   }
 
@@ -100,7 +94,7 @@ export function initSettings() {
     themeWrap.className = 'settings-field';
     const themeLabel = document.createElement('span');
     themeLabel.className = 'settings-label';
-    themeLabel.textContent = t('theme.toggle');
+    themeLabel.textContent = t('settings.themeLabel');
     themeWrap.appendChild(themeLabel);
     themeWrap.appendChild(
       createSegmented(
@@ -129,6 +123,7 @@ export function initSettings() {
 
     const wpTabs = document.createElement('div');
     wpTabs.className = 'wallpaper-tabs';
+    wpTabs.setAttribute('role', 'group');
     const tabKeys = ['solid', 'gradient', 'local'];
     let activeTab = tabKeys.includes(wp.type) ? wp.type : 'solid';
     const idbAvailable = wallpaperStore.isAvailable();
@@ -143,7 +138,7 @@ export function initSettings() {
         btn.type = 'button';
         btn.className = 'wallpaper-tab';
         btn.textContent = t(`wallpaper.${key}`);
-        btn.setAttribute('aria-selected', String(key === activeTab));
+        btn.setAttribute('aria-pressed', String(key === activeTab));
         if (key === activeTab) btn.classList.add('active');
         btn.addEventListener('click', () => {
           activeTab = key;
@@ -593,13 +588,13 @@ export function initSettings() {
     panel.classList.remove('open');
     overlay.classList.remove('open');
     trigger.setAttribute('aria-expanded', 'false');
-    // 等动画结束后隐藏
+    // 等面板滑出动画播完后再 hidden（--transition-normal = 300ms）
     setTimeout(() => {
       if (!isOpen) {
         panel.hidden = true;
         overlay.hidden = true;
       }
-    }, 200);
+    }, 300);
     trigger.focus();
   }
 
@@ -617,13 +612,54 @@ export function initSettings() {
   overlay.addEventListener('click', closePanel);
   fileInput.addEventListener('change', handleImportFile);
 
+  /** 收集面板内所有可聚焦且可见的元素（一次性收集，避免重复 getComputedStyle） */
+  function getFocusableElements() {
+    const candidates = panel.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    return Array.from(candidates).filter((el) => {
+      if (el.disabled) return false;
+      if (el.checkVisibility) return el.checkVisibility();
+      // 退化：检查 display/visibility + position !== 'fixed'
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.position !== 'fixed';
+    });
+  }
+
   function handleKeydown(e) {
-    if (isOpen && e.key === 'Escape') {
+    if (!isOpen) return;
+    if (e.key === 'Escape') {
       e.preventDefault();
       closePanel();
+      return;
+    }
+    if (e.key === 'Tab') {
+      const focusables = getFocusableElements();
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      // 焦点不在面板内时，强制拉回第一个
+      if (!panel.contains(active)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+      if (e.shiftKey) {
+        if (active === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
   }
-  document.addEventListener('keydown', handleKeydown);
+  // 用捕获阶段注册，确保在浏览器默认焦点移动前拦截 Tab
+  document.addEventListener('keydown', handleKeydown, true);
 
   // 语言切换时重渲染（不关闭面板、不重置滚动）
   const offLanguageChange = onLanguageChange(() => {
@@ -640,7 +676,7 @@ export function initSettings() {
     overlay.removeEventListener('click', closePanel);
     fileInput.removeEventListener('change', handleImportFile);
     fileInput.remove();
-    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('keydown', handleKeydown, true);
     offLanguageChange();
   };
 }

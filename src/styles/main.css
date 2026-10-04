@@ -311,12 +311,12 @@ body {
   background-color: var(--color-accent-soft);
 }
 .engine-menu-item.selected {
-  color: var(--color-accent);
+  color: var(--color-accent-active);
   background-color: var(--color-accent-faint);
 }
 .engine-menu-item.selected .engine-icon {
   background-color: var(--color-accent-soft);
-  color: var(--color-accent);
+  color: var(--color-accent-active);
 }
 /* 选中态对勾：纯 CSS，不占布局额外空间（flex-shrink:0，margin-left:auto 推至右端） */
 .engine-menu-item.selected::after {
@@ -325,8 +325,8 @@ body {
   margin-left: auto;
   width: 0.7rem;
   height: 0.4rem;
-  border-left: 2px solid var(--color-accent);
-  border-bottom: 2px solid var(--color-accent);
+  border-left: 2px solid var(--color-accent-active);
+  border-bottom: 2px solid var(--color-accent-active);
   transform: rotate(-45deg);
 }
 .engine-menu-item .engine-name {
@@ -352,8 +352,8 @@ body {
   border-radius: var(--radius-sm);
 }
 .engine-menu-item.selected .engine-menu-shortcut {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
+  color: var(--color-accent-active);
+  border-color: var(--color-accent-active);
 }
 
 /* Tab 栏 */
@@ -381,7 +381,7 @@ body {
   color: var(--color-text);
 }
 /* 选中：主文字色 + 强调色下划线 */
-.wallpaper-tab[aria-selected="true"] {
+.wallpaper-tab[aria-pressed="true"] {
   color: var(--color-text);
   border-bottom-color: var(--color-accent);
 }
@@ -440,7 +440,7 @@ body {
   height: 2.25rem;
   padding: 0;
   border: 1px solid var(--color-border);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background-color: transparent;
   cursor: pointer;
   transition: transform var(--transition-interact);
@@ -461,11 +461,11 @@ body {
 }
 .color-picker-row input[type="color"]::-webkit-color-swatch {
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 .color-picker-row input[type="color"]::-moz-color-swatch {
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 
 /* 本地图片操作 */
@@ -540,11 +540,6 @@ body {
 }
 
 /* 滑块 */
-.wallpaper-controls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
 .wallpaper-slider-row {
   display: flex;
   align-items: center;
@@ -589,7 +584,7 @@ body {
   height: 16px;
   margin-top: -6px; /* (4 - 16) / 2，垂直居中到轨道 */
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background-color: var(--color-slider-thumb);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-interact);
@@ -598,7 +593,7 @@ body {
   width: 16px;
   height: 16px;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background-color: var(--color-slider-thumb);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-interact);
@@ -638,6 +633,7 @@ body {
   top: 0;
   right: 0;
   width: 22rem;
+  height: 100vh;
   height: 100dvh;
   background-color: var(--surface-glass-bg);
   border-left: 1px solid var(--surface-glass-border);
@@ -687,6 +683,7 @@ body {
 .settings-body {
   padding: var(--spacing-lg);
   overflow-y: auto;
+  height: calc(100vh - 4rem);
   height: calc(100dvh - 4rem);
   /* 滚动条精修：Firefox */
   scrollbar-width: thin;
@@ -763,14 +760,14 @@ body {
 }
 .segmented-item.active,
 .segmented-item[aria-pressed="true"] {
-  color: var(--color-accent);
+  color: var(--color-accent-active);
   background-color: var(--color-accent-soft);
   box-shadow: var(--shadow-sm);
 }
 /* 已选中项 hover 时不变化，显式固定 */
 .segmented-item.active:hover,
 .segmented-item[aria-pressed="true"]:hover {
-  color: var(--color-accent);
+  color: var(--color-accent-active);
   background-color: var(--color-accent-soft);
   box-shadow: var(--shadow-sm);
   transform: none;

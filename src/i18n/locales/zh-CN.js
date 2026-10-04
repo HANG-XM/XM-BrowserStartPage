@@ -65,12 +65,6 @@ export default {
       '一天里最松的时候',
     ],
   },
-  theme: {
-    light: '亮色主题',
-    dark: '暗色主题',
-    system: '跟随系统',
-    toggle: '切换主题',
-  },
   search: {
     placeholder: '在 {engine} 中搜索',
     inputLabel: '搜索框，当前引擎：{engine}',
@@ -108,6 +102,7 @@ export default {
       data: '数据',
       about: '关于',
     },
+    themeLabel: '主题',
     theme: {
       light: '亮色',
       dark: '暗色',

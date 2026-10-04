@@ -157,6 +157,7 @@ export function initSearch() {
     toggle.setAttribute('aria-label', t('search.engineMenu', { engine: engineName }));
     input.placeholder = t('search.placeholder', { engine: engineName });
     input.setAttribute('aria-label', t('search.inputLabel', { engine: engineName }));
+    menu.setAttribute('aria-label', t('search.engineMenu', { engine: engineName }));
 
     // 更新菜单项 aria-selected
     Array.from(menu.children).forEach((item, idx) => {

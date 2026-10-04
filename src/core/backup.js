@@ -142,13 +142,23 @@ export function validateBackup(json) {
 }
 
 /**
- * 导入配置（全覆盖）：先快照，逐键写入，失败回滚
+ * 导入配置（全覆盖）：先快照 → 清空所有前缀键 → 逐键写入 → 失败回滚
  * @param {object} payload validateBackup() 校验通过的备份对象
  * @returns {{ ok: true, wallpaperDiscarded: boolean } | { ok: false, error: unknown }}
  */
 export function importConfig(payload) {
+  // 顺序敏感：必须先快照（含即将被清空的所有前缀键），再清空，再写入
+  // 失败时 restorePrefix 能把 localStorage 完整恢复到导入前状态
   const snap = snapshotPrefix();
   try {
+    // 全覆盖：先清空当前所有本应用前缀键，避免目标环境残留合并进新配置
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(KEY_PREFIX)) toRemove.push(key);
+    }
+    toRemove.forEach((k) => localStorage.removeItem(k));
+
     for (const [key, value] of Object.entries(payload.data)) {
       // 安全边界：仅写入本应用前缀的键，禁止写入任意 localStorage 键
       if (!key.startsWith(KEY_PREFIX)) {

@@ -66,12 +66,6 @@ export default {
       'The loosest hour of the day',
     ],
   },
-  theme: {
-    light: 'Light theme',
-    dark: 'Dark theme',
-    system: 'Follow system',
-    toggle: 'Toggle theme',
-  },
   search: {
     placeholder: 'Search on {engine}',
     inputLabel: 'Search input, current engine: {engine}',
@@ -109,6 +103,7 @@ export default {
       data: 'Data',
       about: 'About',
     },
+    themeLabel: 'Theme',
     theme: {
       light: 'Light',
       dark: 'Dark',

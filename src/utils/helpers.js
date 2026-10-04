@@ -20,17 +20,3 @@ export function formatTime(date, hour12 = false) {
   const h12 = h24 % 12 || 12; // 0 点显示为 12，13 点显示为 1
   return `${h12}:${minutes} ${period}`;
 }
-
-/**
- * 校验字符串是否为合法的 http/https URL
- * @param {string} str
- * @returns {boolean}
- */
-export function isValidUrl(str) {
-  try {
-    const url = new URL(str);
-    return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}

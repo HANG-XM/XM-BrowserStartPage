@@ -18,7 +18,7 @@ const DEFAULT_CONFIG = {
   theme: 'system',          // 'light' | 'dark' | 'system'
   hourFormat: '24',         // 时钟制式：'12' | '24'
   searchEngine: 'bing',     // 默认搜索引擎标识
-  searchBoxAlpha: 0.65,     // 搜索框玻璃底不透明度 0.35~1.0
+  searchBoxAlpha: 0.65,     // 搜索框玻璃底 alpha 0~1（滑块端显示为透明度 0~100，100 表示完全透明）
   wallpaper: {
     type: 'solid',          // 'solid' | 'gradient' | 'local'
     value: '',              // solid=CSS颜色；gradient=CSS渐变；local=IndexedDB 图片 id；空串=无壁纸

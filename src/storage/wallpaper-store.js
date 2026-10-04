@@ -105,8 +105,3 @@ export function deleteImage(id) {
 export function clearAll() {
   return run('readwrite', (store) => store.clear());
 }
-
-/** 列出所有图片 id */
-export function listIds() {
-  return run('readonly', (store) => store.getAllKeys());
-}
