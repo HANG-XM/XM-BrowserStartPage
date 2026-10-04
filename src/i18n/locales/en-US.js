@@ -133,6 +133,7 @@ export default {
     importSuccess: 'Import successful, reloading',
     importFailed: 'Import failed, settings restored',
     importInvalidJson: 'File is not valid JSON',
+    importInvalidSchema: 'File structure is incorrect, may not be a backup of this app',
     importTooLarge: 'File exceeds 5MB',
     importVersionWarning: 'Config is from a newer version and may be incompatible',
     wallpaperDiscarded: 'Local image wallpaper was not imported and has been reset to solid color',
@@ -147,5 +148,7 @@ export default {
       'July', 'August', 'September', 'October', 'November', 'December',
     ],
     template: '{weekday}, {monthName} {day}, {year}',
+    am: 'AM',
+    pm: 'PM',
   },
 };

@@ -132,6 +132,7 @@ export default {
     importSuccess: '导入成功，即将刷新页面',
     importFailed: '导入失败，已恢复原配置',
     importInvalidJson: '文件不是有效的 JSON',
+    importInvalidSchema: '文件结构不正确，可能不是本应用的备份',
     importTooLarge: '文件超过 5MB',
     importVersionWarning: '配置来自更高版本，可能不兼容',
     wallpaperDiscarded: '本地图片壁纸未随配置导入，已回退为纯色',
@@ -141,5 +142,7 @@ export default {
     // 索引与 Date.getDay() 对应：0 = 周日
     weekdays: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
     template: '{year}年{month}月{day}日 {weekday}',
+    am: '上午',
+    pm: '下午',
   },
 };

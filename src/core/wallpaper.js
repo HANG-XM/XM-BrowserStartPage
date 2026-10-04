@@ -105,14 +105,9 @@ export async function applyWallpaper() {
   if (!layer) return;
   const seq = ++applySeq;
 
-  // 释放上一个 Object URL
-  if (currentObjectUrl) {
-    URL.revokeObjectURL(currentObjectUrl);
-    currentObjectUrl = null;
-  }
-
   const { type, value } = currentConfig;
   let background = '';
+  let newObjectUrl = null;
 
   if (type === 'solid' || type === 'gradient') {
     background = value || '';
@@ -121,8 +116,8 @@ export async function applyWallpaper() {
       const blob = await wallpaperStore.getImage(value);
       if (seq !== applySeq) return; // 期间已被更新的应用覆盖
       if (!blob) throw new Error('图片记录不存在');
-      currentObjectUrl = URL.createObjectURL(blob);
-      background = `url("${currentObjectUrl}")`;
+      newObjectUrl = URL.createObjectURL(blob);
+      background = `url("${newObjectUrl}")`;
     } catch (err) {
       console.error('[wallpaper] 本地图片加载失败，回退默认背景：', err);
       showToast(t('wallpaper.loadError'), 'warning');
@@ -131,6 +126,15 @@ export async function applyWallpaper() {
       storage.update({ wallpaper: currentConfig });
       background = '';
     }
+  }
+
+  // 先赋值 DOM，再释放旧 URL，避免空窗
+  if (newObjectUrl) {
+    if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = newObjectUrl;
+  } else if (type !== 'local' && currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = null;
   }
 
   // catch 分支可能已把 currentConfig 改写为 solid 回退，后续必须读最新的 currentConfig.type

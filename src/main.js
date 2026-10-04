@@ -30,8 +30,8 @@ function bootstrap() {
   // 设置面板依赖以上模块，放最后
   const cleanupSettings = initSettings();
 
-  // 页面卸载时统一释放资源
-  window.addEventListener('beforeunload', () => {
+  // 页面卸载时统一释放资源（pagehide 兼容 bfcache）
+  window.addEventListener('pagehide', () => {
     cleanupTheme();
     cleanupWallpaper();
     cleanupClock();

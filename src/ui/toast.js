@@ -23,7 +23,7 @@ function ensureContainer() {
   container.id = 'toast-container';
   container.className = 'toast-container';
   container.setAttribute('aria-live', 'polite');
-  container.setAttribute('aria-atomic', 'true');
+  // 不设置 aria-atomic，避免新 toast 加入时整块区域重播
   document.body.appendChild(container);
   return container;
 }
@@ -39,6 +39,7 @@ export function showToast(message, type = 'success') {
 
   const el = document.createElement('div');
   el.className = `toast toast--${toastType}`;
+  el.setAttribute('role', 'status');
   el.textContent = resolved;
 
   ensureContainer().appendChild(el);

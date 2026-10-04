@@ -9,7 +9,7 @@
  * - 切换语言时立即重渲染日期
  */
 import { formatTime } from '../utils/helpers.js';
-import { formatDate, onLanguageChange } from '../i18n/index.js';
+import { formatDate, onLanguageChange, t } from '../i18n/index.js';
 import { storage } from '../storage/storage.js';
 
 /**
@@ -24,24 +24,40 @@ export function initClock() {
   // hourFormat 无 UI 控件修改，init 时读一次缓存即可
   const { hourFormat } = storage.load();
   let timerId = null;
+  let timeoutId = null;
+  let lastDateStr = '';
 
   /** 渲染一帧：时间 + 日期 */
   function render() {
     const now = new Date();
     const hour12 = hourFormat === '12';
-    clockEl.textContent = formatTime(now, hour12);
+    clockEl.textContent = formatTime(now, hour12, { am: t('date.am'), pm: t('date.pm') });
     // datetime 属性始终使用 24 小时制，保证语义化取值稳定
-    clockEl.setAttribute('datetime', formatTime(now));
-    dateEl.textContent = formatDate(now);
+    clockEl.setAttribute('datetime', formatTime(now, false));
+    // 日期跨天才重写
+    const dateStr = now.toDateString();
+    if (dateStr !== lastDateStr) {
+      lastDateStr = dateStr;
+      dateEl.textContent = formatDate(now);
+    }
   }
 
   function start() {
     stop();
     render();
-    timerId = setInterval(render, 1000);
+    // 对齐到下一个整秒再启动 interval
+    const msToNextSecond = 1000 - (Date.now() % 1000);
+    timeoutId = setTimeout(() => {
+      render();
+      timerId = setInterval(render, 1000);
+    }, msToNextSecond);
   }
 
   function stop() {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
     if (timerId !== null) {
       clearInterval(timerId);
       timerId = null;

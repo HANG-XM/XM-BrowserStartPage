@@ -6,7 +6,7 @@
  * 各分区通过调用 theme / wallpaper / search / i18n 模块的公开 API 实现。
  */
 
-import { t, getLanguage, setLanguage, onLanguageChange } from '../i18n/index.js';
+import { t, getLanguage, setLanguage, onLanguageChange, getSupportedLanguages } from '../i18n/index.js';
 import { getThemeMode, setThemeMode } from '../core/theme.js';
 import {
   getWallpaper,
@@ -38,9 +38,11 @@ export function initSettings() {
   let isOpen = false;
 
   /** 将搜索框透明度写入 CSS 变量（仅 .search-box 使用） */
-  function applySearchBoxAlpha(val) {
-    const v = val ?? storage.load().searchBoxAlpha ?? 0.65;
-    document.documentElement.style.setProperty('--search-box-alpha', v);
+  function applySearchBoxAlpha(transparency) {
+    const t = transparency ?? storage.load().searchBoxTransparency ?? 65;
+    const floor = document.documentElement.dataset.theme === 'dark' ? 0.6 : 0.55;
+    const alpha = 1 - (t / 100) * (1 - floor);
+    document.documentElement.style.setProperty('--search-box-alpha', alpha);
   }
   applySearchBoxAlpha(); // 初始化时从配置应用
 
@@ -49,6 +51,7 @@ export function initSettings() {
   fileInput.type = 'file';
   fileInput.accept = '.json,application/json';
   fileInput.className = 'visually-hidden';
+  fileInput.tabIndex = -1;
   fileInput.setAttribute('aria-label', t('backup.fileInputLabel'));
   document.body.appendChild(fileInput);
 
@@ -220,6 +223,7 @@ export function initSettings() {
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
     fileInput.hidden = true;
+    fileInput.tabIndex = -1;
     const chooseBtn = document.createElement('button');
     chooseBtn.type = 'button';
     chooseBtn.className = 'wallpaper-btn';
@@ -255,6 +259,8 @@ export function initSettings() {
       }, 4000);
     }
 
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
     function clearPending() {
       pendingFile = null;
       fileInput.value = '';
@@ -268,12 +274,16 @@ export function initSettings() {
       const file = fileInput.files && fileInput.files[0];
       if (!file) return;
       clearPending();
+      if (file.size > MAX_IMAGE_SIZE) {
+        showHint(t('wallpaper.tooLarge'));
+        // 继续应用，不阻止
+      }
       pendingFile = file;
       previewUrl = URL.createObjectURL(file);
       previewImg.src = previewUrl;
       previewBox.hidden = false;
       applyBtn.hidden = false;
-      if (file.size > 5 * 1024 * 1024) showHint(t('wallpaper.tooLarge'));
+      applyBtn.disabled = false;
     });
 
     applyBtn.addEventListener('click', async () => {
@@ -359,7 +369,7 @@ export function initSettings() {
     section.appendChild(createSlider('wallpaper.blur', 0, 20, 1, wp.blur, (val) => setBlur(val)));
 
     // 搜索框透明度：滑块为「透明度 0~100」（0=不透明，100=完全透明），
-    // 内部换算为 alpha（0~1）后写入 CSS 变量并持久化
+    // 内部按主题地板值换算为 alpha 后写入 CSS 变量，防抖 300ms 后持久化
     const alphaField = document.createElement('div');
     alphaField.className = 'settings-field';
     const alphaLabel = document.createElement('span');
@@ -373,18 +383,21 @@ export function initSettings() {
     alphaInput.min = '0';
     alphaInput.max = '100';
     alphaInput.step = '1';
-    // 存储沿用 alpha（0~1，默认 0.65）；滑块反转为透明度显示
-    const initAlpha = storage.load().searchBoxAlpha ?? 0.65;
-    const initTransparency = Math.round((1 - initAlpha) * 100);
+    // 存储为透明度（0~100，默认 65）；滑块值与存储语义一致
+    const initTransparency = storage.load().searchBoxTransparency ?? 65;
     alphaInput.value = String(initTransparency);
     const alphaValue = document.createElement('span');
     alphaValue.textContent = initTransparency + '%';
+    let alphaSaveTimer = null;
     alphaInput.addEventListener('input', () => {
       const transparency = Number(alphaInput.value); // 0=不透明，100=全透明
       alphaValue.textContent = transparency + '%';
-      const alpha = 1 - transparency / 100;
-      applySearchBoxAlpha(alpha);
-      storage.update({ searchBoxAlpha: alpha });
+      applySearchBoxAlpha(transparency);
+      // 防抖写盘
+      if (alphaSaveTimer) clearTimeout(alphaSaveTimer);
+      alphaSaveTimer = setTimeout(() => {
+        storage.update({ searchBoxTransparency: transparency });
+      }, 300);
     });
     alphaRow.appendChild(alphaInput);
     alphaRow.appendChild(alphaValue);
@@ -426,10 +439,7 @@ export function initSettings() {
     field.className = 'settings-field';
     field.appendChild(
       createSegmented(
-        [
-          { value: 'zh-CN', label: t('settings.language.zh') },
-          { value: 'en-US', label: t('settings.language.en') },
-        ],
+        getSupportedLanguages().map(({ code, name }) => ({ value: code, label: name })),
         getLanguage(),
         (val) => {
           setLanguage(val);
@@ -509,7 +519,15 @@ export function initSettings() {
 
     const check = validateBackup(readResult.json);
     if (!check.ok) {
-      showToast(t('backup.importInvalidJson'), 'error');
+      const reasonKeyMap = {
+        'invalid-schema': 'backup.importInvalidSchema',
+        'invalid-data': 'backup.importInvalidSchema',
+        'invalid-json': 'backup.importInvalidJson',
+        'too-large': 'backup.importTooLarge',
+      };
+      const key = reasonKeyMap[check.reason] || 'backup.importFailed';
+      console.warn('[settings] 导入校验失败，原因：', check.reason);
+      showToast(t(key), 'error');
       return;
     }
     // 高版本提示：允许继续，但先警告
@@ -558,7 +576,31 @@ export function initSettings() {
   // 渲染与显隐
   // ----------------------------------------------------------
 
+  /** 记录当前焦点信息（data-value 或 aria-label） */
+  function captureFocus() {
+    const el = document.activeElement;
+    if (!el || !bodyEl.contains(el)) return null;
+    const dataValue = el.dataset && el.dataset.value;
+    if (dataValue) return { key: 'data-value', value: dataValue };
+    const ariaLabel = el.getAttribute('aria-label');
+    if (ariaLabel) return { key: 'aria-label', value: ariaLabel };
+    return null;
+  }
+
+  /** 重建后按标识恢复焦点（遍历比较，不用 CSS.escape） */
+  function restoreFocus(info) {
+    if (!info) return;
+    const candidates = bodyEl.querySelectorAll('[' + info.key + ']');
+    for (const el of candidates) {
+      if (el.getAttribute(info.key) === info.value) {
+        if (typeof el.focus === 'function') el.focus();
+        return;
+      }
+    }
+  }
+
   function render() {
+    const prevFocus = captureFocus();
     titleEl.textContent = t('settings.title');
     closeBtn.setAttribute('aria-label', t('settings.close'));
     trigger.setAttribute('aria-label', t('settings.open'));
@@ -568,6 +610,7 @@ export function initSettings() {
     bodyEl.appendChild(buildLanguageSection());
     bodyEl.appendChild(buildDataSection());
     bodyEl.appendChild(buildAboutSection());
+    restoreFocus(prevFocus);
   }
 
   function openPanel() {
@@ -670,6 +713,16 @@ export function initSettings() {
 
   render(); // 初始渲染
 
+  // 主题切换时重算搜索框 alpha（地板值不同）
+  const themeObserver = new MutationObserver(() => {
+    const transparency = storage.load().searchBoxTransparency ?? 65;
+    applySearchBoxAlpha(transparency);
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
+
   return function cleanupSettings() {
     trigger.removeEventListener('click', togglePanel);
     closeBtn.removeEventListener('click', closePanel);
@@ -677,6 +730,7 @@ export function initSettings() {
     fileInput.removeEventListener('change', handleImportFile);
     fileInput.remove();
     document.removeEventListener('keydown', handleKeydown, true);
+    themeObserver.disconnect();
     offLanguageChange();
   };
 }
