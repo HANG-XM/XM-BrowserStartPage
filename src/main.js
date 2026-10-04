@@ -11,7 +11,7 @@ import { initGreeting } from './core/greeting.js?v=20261004';
 import { initSearch } from './core/search.js?v=20261004';
 import { initTheme } from './core/theme.js?v=20261004';
 import { initWallpaper } from './core/wallpaper.js?v=20261004';
-import { initSettings } from './settings/settings.js?v=20261004';
+import { initSettings } from './settings/settings.js?v=20261004c';
 import { storage } from './storage/storage.js?v=20261004';
 
 function bootstrap() {

@@ -363,7 +363,8 @@ export function initSettings() {
     );
     section.appendChild(createSlider('wallpaper.blur', 0, 20, 1, wp.blur, (val) => setBlur(val)));
 
-    // 搜索框透明度（0.35~1.0，实时更新 CSS 变量并持久化）
+    // 搜索框透明度：滑块为「透明度 0~100」（0=不透明，100=完全透明），
+    // 内部换算为 alpha（0~1）后写入 CSS 变量并持久化
     const alphaField = document.createElement('div');
     alphaField.className = 'settings-field';
     const alphaLabel = document.createElement('span');
@@ -374,18 +375,21 @@ export function initSettings() {
     alphaRow.className = 'wallpaper-slider-row';
     const alphaInput = document.createElement('input');
     alphaInput.type = 'range';
-    alphaInput.min = '0.35';
-    alphaInput.max = '1.0';
-    alphaInput.step = '0.05';
+    alphaInput.min = '0';
+    alphaInput.max = '100';
+    alphaInput.step = '1';
+    // 存储沿用 alpha（0~1，默认 0.65）；滑块反转为透明度显示
     const initAlpha = storage.load().searchBoxAlpha ?? 0.65;
-    alphaInput.value = String(initAlpha);
+    const initTransparency = Math.round((1 - initAlpha) * 100);
+    alphaInput.value = String(initTransparency);
     const alphaValue = document.createElement('span');
-    alphaValue.textContent = Math.round(initAlpha * 100) + '%';
+    alphaValue.textContent = initTransparency + '%';
     alphaInput.addEventListener('input', () => {
-      const val = Number(alphaInput.value);
-      alphaValue.textContent = Math.round(val * 100) + '%';
-      applySearchBoxAlpha(val);
-      storage.update({ searchBoxAlpha: val });
+      const transparency = Number(alphaInput.value); // 0=不透明，100=全透明
+      alphaValue.textContent = transparency + '%';
+      const alpha = 1 - transparency / 100;
+      applySearchBoxAlpha(alpha);
+      storage.update({ searchBoxAlpha: alpha });
     });
     alphaRow.appendChild(alphaInput);
     alphaRow.appendChild(alphaValue);
