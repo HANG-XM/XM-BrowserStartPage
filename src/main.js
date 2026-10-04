@@ -9,6 +9,8 @@ import { initI18n } from './i18n/index.js';
 import { initClock } from './core/clock.js';
 import { initGreeting } from './core/greeting.js';
 import { initSearch } from './core/search.js';
+import { initQuickLinks } from './core/quick-links.js';
+import { initVisibility } from './core/element-visibility.js';
 import { initTheme } from './core/theme.js';
 import { initWallpaper } from './core/wallpaper.js';
 import { initSettings } from './settings/settings.js';
@@ -27,6 +29,8 @@ function bootstrap() {
   const cleanupClock = initClock();
   const cleanupGreeting = initGreeting();
   const cleanupSearch = initSearch();
+  const cleanupQuickLinks = initQuickLinks();
+  const cleanupVisibility = initVisibility();
   // 设置面板依赖以上模块，放最后
   const cleanupSettings = initSettings();
 
@@ -37,6 +41,8 @@ function bootstrap() {
     cleanupClock();
     cleanupGreeting();
     cleanupSearch();
+    cleanupQuickLinks();
+    cleanupVisibility();
     cleanupSettings();
   });
 }

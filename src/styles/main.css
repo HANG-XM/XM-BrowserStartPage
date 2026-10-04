@@ -135,6 +135,61 @@ body {
   color: var(--color-text-secondary);
 }
 
+/* ---------- 快速链接区域 ---------- */
+.quicklinks-region {
+  width: min(100%, 36rem);
+  display: none; /* 无数据时 hidden 属性生效、不占位；有数据时 :not([hidden]) 显示 */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+.quicklinks-region:not([hidden]) {
+  display: flex;
+}
+.quicklink-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  max-width: 100%;
+  padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+  border-radius: var(--radius-full);
+  color: var(--color-text);
+  transition: background-color var(--transition-interact),
+              transform var(--transition-interact),
+              box-shadow var(--transition-interact);
+}
+.quicklink-item:hover {
+  background-color: var(--color-accent-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.quicklink-item:active {
+  transform: translateY(-1px) scale(0.96);
+}
+.quicklink-item:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.quicklink-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff; /* 头像底色均按白字 ≥4.5:1 挑选 */
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+}
+.quicklink-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-md);
+}
+
 /* ---------- 搜索区域 ---------- */
 .search-region {
   width: min(100%, 36rem);
@@ -855,6 +910,101 @@ body {
   color: var(--color-text-tertiary);
 }
 
+/* ---------- 快速链接管理（设置面板） ---------- */
+.ql-hint {
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+.ql-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+.ql-item-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.ql-item-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+}
+.ql-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+.ql-item-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.125rem;
+}
+.ql-icon-btn {
+  padding: 0.2rem 0.45rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-interact),
+              background-color var(--transition-interact);
+}
+.ql-icon-btn:hover {
+  color: var(--color-text);
+  background-color: var(--color-accent-soft);
+}
+.ql-icon-btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+.ql-empty {
+  padding: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+/* 添加 / inline 编辑表单 */
+.ql-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+.ql-input {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-interact);
+}
+.ql-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+.ql-input:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+.ql-form-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
 /* 关于 */
 .settings-about-name {
   font-size: var(--font-size-base);
@@ -1038,7 +1188,9 @@ html.no-blur .toast {
   .swatch,
   .color-picker-row input[type="color"],
   .wallpaper-slider-row input[type="range"],
-  .settings-toggle {
+  .settings-toggle,
+  .quicklink-item,
+  .ql-icon-btn {
     transition: none;
   }
   /* 关闭按压反馈与菜单入场动画 */
@@ -1055,7 +1207,9 @@ html.no-blur .toast {
   .color-picker-row input[type="color"]:hover,
   .color-picker-row input[type="color"]:active,
   .swatch:hover,
-  .swatch:active {
+  .swatch:active,
+  .quicklink-item:hover,
+  .quicklink-item:active {
     transform: none;
   }
   .wallpaper-slider-row input[type="range"]::-webkit-slider-thumb,

@@ -35,6 +35,14 @@
   --color-toggle-bg: rgba(17, 19, 24, 0.16);           /* 开关关闭态轨道 */
   --color-toggle-knob: #ffffff;                        /* 开关圆点 */
 
+  /* 快速链接头像调色板（6 色，冷暖混搭；均按白字对比度 ≥ 4.5:1 挑选） */
+  --color-avatar-1: #d03f3f;
+  --color-avatar-2: #c2410c;
+  --color-avatar-3: #15803d;
+  --color-avatar-4: #0f766e;
+  --color-avatar-5: #3565d8;
+  --color-avatar-6: #c92e63;
+
   /* ---------- 玻璃拟态表面（批 3） ---------- */
   --surface-glass-bg: rgba(255, 255, 255, 0.65);
   --surface-glass-border: rgba(255, 255, 255, 0.6);
@@ -132,6 +140,14 @@
   --color-slider-thumb: #ffffff;
   --color-toggle-bg: rgba(255, 255, 255, 0.18);
   --color-toggle-knob: #f1f3f7;
+
+  /* 快速链接头像调色板（暗色：同色相略提亮，白字对比度仍 ≥ 4.5:1） */
+  --color-avatar-1: #cc4545;
+  --color-avatar-2: #b35a17;
+  --color-avatar-3: #15803d;
+  --color-avatar-4: #0e8176;
+  --color-avatar-5: #3d6bdb;
+  --color-avatar-6: #ca3e72;
 
   /* 玻璃拟态（暗色）：blur 强度与 fallback 继承 :root 定义 */
   --surface-glass-bg: rgba(28, 31, 38, 0.6);

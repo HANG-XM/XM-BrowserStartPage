@@ -25,6 +25,9 @@ const DEFAULT_CONFIG = {
   searchEngine: 'bing',     // 默认搜索引擎标识
   searchBoxTransparency: 65, // 搜索框玻璃底透明度（UI 值 0~100，0=不透明，100=完全透明）
   autoFocus: getDefaultAutoFocus(), // 进入页面时是否自动聚焦搜索框（触屏默认关闭）
+  quickLinks: [],          // 快速链接：每项 { id, title, url }，最多 8 个
+  showGreeting: true,      // 是否显示问候语
+  showDate: true,          // 是否显示日期
   wallpaper: {
     type: 'solid',          // 'solid' | 'gradient' | 'local'
     value: '',              // solid=CSS颜色；gradient=CSS渐变；local=IndexedDB 图片 id；空串=无壁纸
@@ -44,13 +47,10 @@ function migrate(data) {
   // 未来版本：原样返回，不做降级处理
   if (oldVersion > STORAGE_VERSION) return data;
 
-  const next = { ...DEFAULT_CONFIG, ...data };
-  if (oldVersion < 2) {
-    // v1 → v2：新增 autoFocus 字段
-    if (next.autoFocus === undefined) next.autoFocus = getDefaultAutoFocus();
-  }
-  next.version = STORAGE_VERSION;
-  return next;
+  // 通用补默认值：顶层缺失字段由 spread 自动取自 DEFAULT_CONFIG。
+  // 同版本内新增字段（如 quickLinks / showGreeting / showDate）无需逐字段 if，
+  // 只需把字段加入 DEFAULT_CONFIG；嵌套对象需保证整体存在。
+  return { ...DEFAULT_CONFIG, ...data, version: STORAGE_VERSION };
 }
 
 export const storage = {
@@ -66,7 +66,7 @@ export const storage = {
       const oldVersion = typeof parsed.version === 'number' ? parsed.version : 1;
       const migrated = migrate(parsed);
       // 发生过版本迁移时立即写回（未来版本不写回，避免降级）
-      if (oldVersion < STORAGE_VERSION && oldVersion <= STORAGE_VERSION) {
+      if (oldVersion < STORAGE_VERSION) {
         this.save(migrated);
       }
       return migrated;

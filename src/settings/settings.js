@@ -17,11 +17,16 @@ import {
   GRADIENT_PRESETS,
 } from '../core/wallpaper.js';
 import { getSearchEngine, setSearchEngine, ENGINES } from '../core/search.js';
+import {
+  getLinks, addLink, updateLink, removeLink, avatarIndex,
+  renderQuickLinks, MAX_QUICK_LINKS, MAX_TITLE_LENGTH,
+} from '../core/quick-links.js';
 import { refreshClock } from '../core/clock.js';
 import { storage } from '../storage/storage.js';
 import * as wallpaperStore from '../storage/wallpaper-store.js';
 import { exportConfig, importConfig, validateBackup, readFileAsJson, APP_VERSION } from '../core/backup.js';
 import { showToast } from '../ui/toast.js';
+import { applyVisibility } from '../core/element-visibility.js';
 
 /**
  * 初始化设置面板
@@ -89,6 +94,37 @@ export function initSettings() {
     return wrap;
   }
 
+  /**
+   * 构建元素显隐开关行（显示问候语 / 显示日期）
+   * @param {string} labelKey i18n 文案 key
+   * @param {string} configKey storage 配置字段名
+   */
+  function buildVisibilityToggle(labelKey, configKey) {
+    const field = document.createElement('div');
+    field.className = 'settings-field';
+    const row = document.createElement('label');
+    row.className = 'settings-toggle-row';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'settings-toggle';
+    checkbox.checked = storage.load()[configKey] !== false;
+
+    const text = document.createElement('span');
+    text.className = 'settings-toggle-text';
+    text.textContent = t(labelKey);
+
+    row.appendChild(checkbox);
+    row.appendChild(text);
+    field.appendChild(row);
+    // 切换不触发 render：持久化后立即应用显隐，焦点保持在开关上
+    checkbox.addEventListener('change', () => {
+      storage.update({ [configKey]: checkbox.checked });
+      applyVisibility();
+    });
+    return field;
+  }
+
   /** 构建外观分区 */
   function buildAppearanceSection() {
     const section = createSection('settings.section.appearance');
@@ -139,6 +175,10 @@ export function initSettings() {
       )
     );
     section.appendChild(hourWrap);
+
+    // 显示问候语 / 显示日期开关
+    section.appendChild(buildVisibilityToggle('settings.showGreeting', 'showGreeting'));
+    section.appendChild(buildVisibilityToggle('settings.showDate', 'showDate'));
 
     // 壁纸类型 Tab
     const wp = getWallpaper();
@@ -605,6 +645,202 @@ export function initSettings() {
     setTimeout(() => location.reload(), 800);
   }
 
+  /** 构建一个快速链接展示行（头像 + 标题 + 编辑/删除） */
+  function createLinkItemRow(link) {
+    const row = document.createElement('div');
+    row.className = 'ql-item-row';
+
+    const avatar = document.createElement('span');
+    avatar.className = 'ql-item-avatar';
+    avatar.textContent = Array.from(link.title.trim())[0] || '?';
+    avatar.style.backgroundColor = `var(--color-avatar-${avatarIndex(link.title) + 1})`;
+
+    const title = document.createElement('span');
+    title.className = 'ql-item-title';
+    title.textContent = link.title;
+
+    const actions = document.createElement('span');
+    actions.className = 'ql-item-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'ql-icon-btn';
+    editBtn.textContent = t('settings.quickLinks.edit');
+    editBtn.addEventListener('click', () => enterLinkEditMode(row, link));
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'ql-icon-btn';
+    delBtn.textContent = t('settings.quickLinks.delete');
+    delBtn.addEventListener('click', () => {
+      removeLink(link.id);
+      renderQuickLinks();
+      render();
+    });
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    row.appendChild(avatar);
+    row.appendChild(title);
+    row.appendChild(actions);
+    return row;
+  }
+
+  /** 进入 inline 编辑：当前行替换为标题/URL 输入框 + 保存/取消 */
+  function enterLinkEditMode(row, link) {
+    row.classList.add('editing');
+    row.innerHTML = '';
+    const form = document.createElement('div');
+    form.className = 'ql-form';
+
+    const titleInput = document.createElement('input');
+    titleInput.className = 'ql-input';
+    titleInput.type = 'text';
+    titleInput.maxLength = String(MAX_TITLE_LENGTH);
+    titleInput.value = link.title;
+    titleInput.placeholder = t('settings.quickLinks.namePlaceholder');
+
+    const urlInput = document.createElement('input');
+    urlInput.className = 'ql-input';
+    urlInput.type = 'text';
+    urlInput.value = link.url;
+    urlInput.placeholder = t('settings.quickLinks.urlPlaceholder');
+
+    const actions = document.createElement('div');
+    actions.className = 'ql-form-actions';
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'settings-btn';
+    saveBtn.textContent = t('settings.quickLinks.save');
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'settings-btn';
+    cancelBtn.textContent = t('settings.quickLinks.cancel');
+
+    // 取消：放弃编辑，整面板重绘恢复原行
+    function cancelEdit() {
+      render();
+    }
+
+    saveBtn.addEventListener('click', () => {
+      const result = updateLink(link.id, { title: titleInput.value, url: urlInput.value });
+      if (!result.ok) {
+        const reasonMap = {
+          'title-required': 'settings.quickLinks.titleRequired',
+          'invalid-url': 'settings.quickLinks.invalidUrl',
+        };
+        showToast(t(reasonMap[result.reason] || 'backup.importFailed'), 'error');
+        return;
+      }
+      renderQuickLinks();
+      render();
+    });
+    cancelBtn.addEventListener('click', cancelEdit);
+
+    // Esc = 取消（面板级捕获监听会跳过 .editing 行，由这里处理）
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        cancelEdit();
+      }
+    });
+
+    actions.appendChild(saveBtn);
+    actions.appendChild(cancelBtn);
+    form.appendChild(titleInput);
+    form.appendChild(urlInput);
+    form.appendChild(actions);
+    row.appendChild(form);
+    titleInput.focus();
+  }
+
+  /** 构建底部添加表单 */
+  function createLinkAddForm() {
+    const form = document.createElement('div');
+    form.className = 'ql-form';
+
+    const titleInput = document.createElement('input');
+    titleInput.className = 'ql-input';
+    titleInput.type = 'text';
+    titleInput.maxLength = String(MAX_TITLE_LENGTH);
+    titleInput.placeholder = t('settings.quickLinks.namePlaceholder');
+
+    const urlInput = document.createElement('input');
+    urlInput.className = 'ql-input';
+    urlInput.type = 'text';
+    urlInput.placeholder = t('settings.quickLinks.urlPlaceholder');
+
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'settings-btn';
+    addBtn.textContent = t('settings.quickLinks.add');
+
+    function doAdd() {
+      const result = addLink(titleInput.value, urlInput.value);
+      if (!result.ok) {
+        const reasonMap = {
+          'title-required': 'settings.quickLinks.titleRequired',
+          'invalid-url': 'settings.quickLinks.invalidUrl',
+          'limit-reached': 'settings.quickLinks.limitReached',
+        };
+        showToast(t(reasonMap[result.reason] || 'backup.importFailed'), 'error');
+        return;
+      }
+      renderQuickLinks();
+      render();
+    }
+    addBtn.addEventListener('click', doAdd);
+    // 输入框内 Enter：标题框跳 URL，URL 框执行添加
+    titleInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); urlInput.focus(); }
+    });
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); doAdd(); }
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'ql-form-actions';
+    actions.appendChild(addBtn);
+    form.appendChild(titleInput);
+    form.appendChild(urlInput);
+    form.appendChild(actions);
+    return form;
+  }
+
+  /** 构建快速链接管理分区 */
+  function buildQuickLinksSection() {
+    const section = createSection('settings.quickLinks.title');
+
+    const hint = document.createElement('div');
+    hint.className = 'ql-hint';
+    hint.textContent = t('settings.quickLinks.max');
+    section.appendChild(hint);
+
+    const listWrap = document.createElement('div');
+    listWrap.className = 'ql-list';
+    const links = getLinks();
+    if (links.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'ql-empty';
+      empty.textContent = t('settings.quickLinks.empty');
+      listWrap.appendChild(empty);
+    } else {
+      links.forEach((link) => listWrap.appendChild(createLinkItemRow(link)));
+    }
+    section.appendChild(listWrap);
+
+    // 达上限时不显示添加表单，改显示提示
+    if (links.length >= MAX_QUICK_LINKS) {
+      const limitNote = document.createElement('div');
+      limitNote.className = 'ql-empty';
+      limitNote.textContent = t('settings.quickLinks.limitReached');
+      section.appendChild(limitNote);
+    } else {
+      section.appendChild(createLinkAddForm());
+    }
+    return section;
+  }
+
   /** 构建关于分区 */
   function buildAboutSection() {
     const section = createSection('settings.section.about');
@@ -663,6 +899,7 @@ export function initSettings() {
     bodyEl.appendChild(buildSearchSection());
     bodyEl.appendChild(buildLanguageSection());
     bodyEl.appendChild(buildDataSection());
+    bodyEl.appendChild(buildQuickLinksSection());
     bodyEl.appendChild(buildAboutSection());
     restoreFocus(prevFocus);
   }
@@ -726,6 +963,8 @@ export function initSettings() {
   function handleKeydown(e) {
     if (!isOpen) return;
     if (e.key === 'Escape') {
+      // 快速链接 inline 编辑行内的 Esc 只取消编辑（行内监听随后处理），不关闭面板
+      if (e.target && e.target.closest && e.target.closest('.ql-item-row.editing')) return;
       e.preventDefault();
       closePanel();
       return;

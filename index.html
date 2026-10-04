@@ -33,12 +33,12 @@
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261004k" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261004k" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261004k" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261004l" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261004l" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261004l" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261004k"></script>
+  <script type="module" src="./src/main.js?v=20261004l"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
@@ -69,6 +69,9 @@
         <p class="date" id="date"></p>
         <p class="greeting" id="greeting"></p>
       </section>
+
+      <!-- 快速链接区域（空容器，由 quick-links.js 填充；无数据时隐藏不占位） -->
+      <section class="quicklinks-region" id="quicklinks-region" hidden></section>
 
       <!-- 搜索区域 -->
       <section class="search-region" aria-label="搜索">
