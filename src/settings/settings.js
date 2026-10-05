@@ -13,6 +13,7 @@ import {
   setWallpaper,
   setOverlay,
   setBlur,
+  setDailyRotate,
   SOLID_PRESETS,
   GRADIENT_PRESETS,
 } from '../core/wallpaper.js';
@@ -125,6 +126,38 @@ export function initSettings() {
     return field;
   }
 
+  /** 构建「每日更换壁纸」开关行（含说明文字） */
+  function buildDailyWallpaperToggle() {
+    const field = document.createElement('div');
+    field.className = 'settings-field';
+    const row = document.createElement('label');
+    row.className = 'settings-toggle-row';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'settings-toggle';
+    checkbox.checked = storage.load().wallpaperDailyRotate === true;
+
+    const text = document.createElement('span');
+    text.className = 'settings-toggle-text';
+    text.textContent = t('settings.dailyWallpaper');
+
+    row.appendChild(checkbox);
+    row.appendChild(text);
+    field.appendChild(row);
+
+    const hint = document.createElement('div');
+    hint.className = 'settings-toggle-hint';
+    hint.textContent = t('settings.dailyWallpaperHint');
+    field.appendChild(hint);
+
+    // 切换不 render 面板：setDailyRotate 内部持久化并重新应用壁纸，焦点保持在开关
+    checkbox.addEventListener('change', () => {
+      setDailyRotate(checkbox.checked);
+    });
+    return field;
+  }
+
   /** 构建外观分区 */
   function buildAppearanceSection() {
     const section = createSection('settings.section.appearance');
@@ -179,6 +212,9 @@ export function initSettings() {
     // 显示问候语 / 显示日期开关
     section.appendChild(buildVisibilityToggle('settings.showGreeting', 'showGreeting'));
     section.appendChild(buildVisibilityToggle('settings.showDate', 'showDate'));
+
+    // 每日更换壁纸开关（含说明文字）
+    section.appendChild(buildDailyWallpaperToggle());
 
     // 壁纸类型 Tab
     const wp = getWallpaper();
@@ -497,6 +533,28 @@ export function initSettings() {
       )
     );
     section.appendChild(field);
+
+    // 搜索结果打开方式：新标签页 / 当前页
+    const openInField = document.createElement('div');
+    openInField.className = 'settings-field';
+    const openInLabel = document.createElement('span');
+    openInLabel.className = 'settings-label';
+    openInLabel.textContent = t('settings.searchOpenIn');
+    openInField.appendChild(openInLabel);
+    openInField.appendChild(
+      createSegmented(
+        [
+          { value: 'new', label: t('settings.searchOpenInNew') },
+          { value: 'current', label: t('settings.searchOpenInCurrent') },
+        ],
+        storage.load().searchOpenIn === 'current' ? 'current' : 'new',
+        (val) => {
+          storage.update({ searchOpenIn: val });
+          render(); // 刷新选中态，焦点由 render 恢复到该按钮
+        }
+      )
+    );
+    section.appendChild(openInField);
 
     // 自动聚焦搜索框开关
     const focusField = document.createElement('div');

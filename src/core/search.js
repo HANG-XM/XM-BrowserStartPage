@@ -236,8 +236,13 @@ export function initSearch() {
     e.preventDefault();
     const value = input.value.trim();
     if (!value) return;
-    const result = resolveInput(value);
-    window.location.href = result.url;
+    const result = resolveInput(value); // URL 直访与搜索统一在此解析
+    // 打开方式：'current' 当前页跳转；'new'（默认）新标签页打开
+    if (storage.load().searchOpenIn === 'current') {
+      window.location.href = result.url;
+    } else {
+      window.open(result.url, '_blank', 'noopener');
+    }
   }
 
   // ----------------------------------------------------------

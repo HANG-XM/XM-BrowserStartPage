@@ -28,6 +28,8 @@ const DEFAULT_CONFIG = {
   quickLinks: [],          // 快速链接：每项 { id, title, url }，最多 8 个
   showGreeting: true,      // 是否显示问候语
   showDate: true,          // 是否显示日期
+  wallpaperDailyRotate: false, // 每日壁纸轮换：开启后从预设池按日期确定性选一张（不覆盖本地图片）
+  searchOpenIn: 'new',     // 搜索结果打开方式：'new'（新标签页）| 'current'（当前页）
   wallpaper: {
     type: 'solid',          // 'solid' | 'gradient' | 'local'
     value: '',              // solid=CSS颜色；gradient=CSS渐变；local=IndexedDB 图片 id；空串=无壁纸
@@ -65,8 +67,12 @@ export const storage = {
       const parsed = JSON.parse(raw);
       const oldVersion = typeof parsed.version === 'number' ? parsed.version : 1;
       const migrated = migrate(parsed);
-      // 发生过版本迁移时立即写回（未来版本不写回，避免降级）
-      if (oldVersion < STORAGE_VERSION) {
+      // 写回条件：
+      // ① 发生过版本升级；② 同版本内 DEFAULT_CONFIG 新增了顶层字段（老 v2 配置缺字段）
+      // 未来版本（oldVersion > 当前）不写回，避免降级
+      const missingTopFields = Object.keys(DEFAULT_CONFIG)
+        .some((key) => parsed[key] === undefined);
+      if (oldVersion < STORAGE_VERSION || missingTopFields) {
         this.save(migrated);
       }
       return migrated;

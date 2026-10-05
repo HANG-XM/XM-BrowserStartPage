@@ -123,6 +123,13 @@ export default {
     autoFocusHint: 'Focus the search box on load (recommended off on touch devices to avoid the keyboard popping up)',
     showGreeting: 'Show greeting',
     showDate: 'Show date',
+    dailyWallpaper: 'Daily wallpaper',
+    dailyWallpaperHint: 'Automatically picks one preset per day. Your uploaded images are never replaced',
+    dailyWallpaperManual: 'Switched to manual mode',
+    dailyWallpaperLocalActive: 'Local image wallpaper active, rotation is inactive',
+    searchOpenIn: 'Open in',
+    searchOpenInNew: 'New tab',
+    searchOpenInCurrent: 'Current page',
     language: {
       zh: '简体中文',
       en: 'English',

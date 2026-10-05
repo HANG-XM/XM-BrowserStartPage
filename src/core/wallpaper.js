@@ -8,6 +8,12 @@
  *   - overlay：遮罩透明度 0~1（遮罩颜色走 CSS 变量，随主题自动切换）
  *   - blur：背景模糊像素 0~20
  *
+ * 每日轮换（wallpaperDailyRotate）：
+ *   - 开启后从 SOLID_PRESETS + GRADIENT_PRESETS 合并池按「本地日期」确定性选一张
+ *   - 轮换只在应用层派生，绝不改写 storage.wallpaper（用户手动偏好）
+ *   - 本地图片（type=local）优先级最高，轮换永不覆盖
+ *   - 用户手动选择壁纸时自动关闭轮换并提示；遮罩/模糊滑块不触发关闭
+ *
  * 设置面板内的壁纸控件由 settings.js 动态构建，本模块只负责数据与应用；
  * Object URL 在替换与清理时统一 revoke。
  */
@@ -16,6 +22,7 @@ import { storage } from '../storage/storage.js';
 import * as wallpaperStore from '../storage/wallpaper-store.js';
 import { t } from '../i18n/index.js';
 import { showToast } from '../ui/toast.js';
+import { hashSeed } from './greeting.js';
 
 /** 默认壁纸配置 */
 const DEFAULT_WALLPAPER = { type: 'solid', value: '', overlay: 0.3, blur: 0 };
@@ -29,6 +36,15 @@ export const GRADIENT_PRESETS = [
   'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
   'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
   'linear-gradient(135deg, #232526 0%, #414345 100%)',
+];
+
+/**
+ * 每日轮换池：纯色 + 渐变合并（下标 0~7 纯色，8~13 渐变）
+ * 顺序调整会改变历史日期的选取结果，勿轻易变动
+ */
+const DAILY_POOL = [
+  ...SOLID_PRESETS.map((value) => ({ type: 'solid', value })),
+  ...GRADIENT_PRESETS.map((value) => ({ type: 'gradient', value })),
 ];
 
 /** 旧版配置类型映射（color→solid、image→local、url 已废弃→solid） */
@@ -53,30 +69,76 @@ function normalizeConfig(raw) {
   return cfg;
 }
 
-/** 当前是否有实际壁纸（无壁纸时遮罩强制为 0，避免洗掉主题背景色） */
-function hasActiveWallpaper() {
-  return currentConfig.value !== '';
+/**
+ * 本地日期字符串 YYYY-MM-DD（按本地时区，避免 toISOString 的 UTC 偏差）
+ * @param {Date} [date]
+ * @returns {string}
+ */
+function localDateStr(date) {
+  const d = date || new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/**
+ * 解析当前实际生效的壁纸配置：
+ * ① 用户本地图片（type=local）：最高优先，轮换永不覆盖
+ * ② 轮换开启且当前非 local：派生今日预设（overlay/blur 沿用用户配置），不写 storage
+ * ③ 其余：用户手动配置
+ * @returns {{cfg: object, isDaily: boolean}}
+ */
+function resolveEffectiveConfig() {
+  // currentConfig 是用户手动偏好（setOverlay/setBlur 后也是最新的）
+  if (currentConfig.type === 'local') return { cfg: currentConfig, isDaily: false };
+  if (storage.load().wallpaperDailyRotate === true) {
+    const pick = DAILY_POOL[hashSeed(localDateStr()) % DAILY_POOL.length];
+    return { cfg: { ...currentConfig, ...pick }, isDaily: true };
+  }
+  return { cfg: currentConfig, isDaily: false };
+}
+
+/** 指定配置是否有实际壁纸（无壁纸时遮罩强制为 0，避免洗掉主题背景色） */
+function hasActiveWallpaper(cfg) {
+  return cfg.value !== '';
 }
 
 // ============================================================
 // 公共 API
 // ============================================================
 
-/** 获取当前壁纸配置（副本） */
+/** 获取当前壁纸配置（用户手动偏好的副本，不含轮换派生值） */
 export function getWallpaper() {
   return { ...currentConfig };
 }
 
-/** 保存并应用壁纸配置（增量合并） */
+/** 保存并应用壁纸配置（增量合并）；轮换开启时手动选择自动关闭轮换 */
 export function setWallpaper(config) {
   const prev = currentConfig;
   currentConfig = normalizeConfig({ ...currentConfig, ...config });
+  // 用户主动选壁纸 → 退出每日轮换（setOverlay/setBlur 不走本函数，不会误关）
+  if (storage.load().wallpaperDailyRotate === true) {
+    storage.update({ wallpaperDailyRotate: false });
+    showToast(t('settings.dailyWallpaperManual'), 'info');
+  }
   storage.update({ wallpaper: currentConfig });
   applyWallpaper();
   // 替换本地图片时删除旧记录，避免 IndexedDB 垃圾堆积
   if (prev.type === 'local' && prev.value && prev.value !== currentConfig.value) {
     wallpaperStore.deleteImage(prev.value).catch((err) => console.error('[wallpaper] 清理旧图片失败：', err));
   }
+}
+
+/**
+ * 开启 / 关闭每日轮换
+ * @param {boolean} enabled
+ */
+export function setDailyRotate(enabled) {
+  storage.update({ wallpaperDailyRotate: Boolean(enabled) });
+  // 当前是本地图片时开启也不生效，给出提示
+  if (enabled && currentConfig.type === 'local') {
+    showToast(t('settings.dailyWallpaperLocalActive'), 'warning');
+  }
+  applyWallpaper();
 }
 
 /** 设置遮罩透明度（0~1） */
@@ -105,7 +167,9 @@ export async function applyWallpaper() {
   if (!layer) return;
   const seq = ++applySeq;
 
-  const { type, value } = currentConfig;
+  // 生效配置：可能是轮换派生值（不写 storage）
+  const { cfg: effective } = resolveEffectiveConfig();
+  const { type, value } = effective;
   let background = '';
   let newObjectUrl = null;
 
@@ -138,7 +202,7 @@ export async function applyWallpaper() {
   }
 
   // catch 分支可能已把 currentConfig 改写为 solid 回退，后续必须读最新的 currentConfig.type
-  const finalType = currentConfig.type;
+  const finalType = currentConfig.type === 'local' && seq === applySeq ? 'local' : (background ? type : 'solid');
   layer.dataset.wallpaperType = finalType; // 供 CSS 按壁纸类型控制噪点纹理（仅 solid/gradient 显示）
   // 按类型分属性写，避免 background 简写属性覆盖 CSS 的 background-size/position/repeat
   if (finalType === 'solid') {
@@ -156,10 +220,12 @@ function applyEffects() {
   const layer = document.getElementById('wallpaper');
   const overlayEl = document.getElementById('wallpaper-overlay');
   if (!layer || !overlayEl) return;
-  const { blur, overlay } = currentConfig;
+  // 轮换开启时遮罩/模糊也要跟随当日壁纸，故读生效配置
+  const { cfg: effective } = resolveEffectiveConfig();
+  const { blur, overlay } = effective;
   layer.style.filter = blur > 0 ? `blur(${blur}px)` : '';
   layer.style.transform = blur > 0 ? 'scale(1.05)' : ''; // 模糊时略放大，避免边缘透明
-  overlayEl.style.opacity = hasActiveWallpaper() ? String(overlay) : '0';
+  overlayEl.style.opacity = hasActiveWallpaper(effective) ? String(overlay) : '0';
 }
 
 /** 防抖持久化（滑块拖动时避免高频写入 localStorage） */
@@ -175,13 +241,29 @@ function scheduleSave() {
 
 /**
  * 初始化壁纸模块：应用已有配置并返回清理函数
- * @returns {() => void} 清理函数：释放 timer 与 Object URL
+ * @returns {() => void} 清理函数：释放 timer / Object URL / 事件监听
  */
 export function initWallpaper() {
+  // 跨天自动重算：仅在轮换可能生效时（开关开且非 local）
+  let lastAppliedDate = localDateStr();
+  function handleVisibilityChange() {
+    if (document.hidden) return;
+    const today = localDateStr();
+    if (today !== lastAppliedDate) {
+      lastAppliedDate = today;
+      const cfg = storage.load();
+      if (cfg.wallpaperDailyRotate === true && currentConfig.type !== 'local') {
+        applyWallpaper();
+      }
+    }
+  }
+
   applyWallpaper();
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
   return function cleanupWallpaper() {
     clearTimeout(saveTimer);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
     if (currentObjectUrl) {
       URL.revokeObjectURL(currentObjectUrl);
       currentObjectUrl = null;

@@ -122,6 +122,13 @@ export default {
     autoFocusHint: '进入页面时自动聚焦搜索框（触屏设备建议关闭，避免自动弹出软键盘）',
     showGreeting: '显示问候语',
     showDate: '显示日期',
+    dailyWallpaper: '每日更换壁纸',
+    dailyWallpaperHint: '从预设池中每天自动选一张，不会覆盖你上传的图片',
+    dailyWallpaperManual: '已切换为手动模式',
+    dailyWallpaperLocalActive: '当前为本地图片壁纸，轮换暂不生效',
+    searchOpenIn: '打开方式',
+    searchOpenInNew: '新标签页',
+    searchOpenInCurrent: '当前页',
     language: {
       zh: '简体中文',
       en: 'English',
