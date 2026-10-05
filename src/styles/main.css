@@ -125,6 +125,10 @@ body {
   /* 等宽数字，避免分钟跳动时整体抖动 */
   font-variant-numeric: tabular-nums;
 }
+/* N4：显示秒数时字号收紧，避免 HH:MM:SS 撑破布局（HH:MM 5 字符 → HH:MM:SS 8 字符，宽度 ×1.6） */
+.clock.has-seconds {
+  font-size: clamp(2.5rem, 9vw, 5rem);
+}
 .date {
   font-size: var(--font-size-md);
   color: var(--color-text-secondary);
@@ -1156,6 +1160,31 @@ body {
 .toast--error::before { background-color: var(--color-error); }
 .toast--info::before { background-color: var(--color-text-tertiary); } /* 中性灰，不带语义色 */
 
+/* ---------- N3: 拖拽壁纸遮罩 ---------- */
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-settings) - 1); /* 在设置面板下方，避免拖拽时遮挡抽屉 */
+  display: grid;
+  place-items: center;
+  background-color: rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: var(--surface-glass-blur-soft);
+  backdrop-filter: var(--surface-glass-blur-soft);
+}
+.drop-overlay-box {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border: 2px dashed var(--surface-glass-border);
+  border-radius: var(--radius-lg);
+  background-color: rgba(var(--surface-glass-rgb), 0.5);
+  -webkit-backdrop-filter: var(--surface-glass-blur-soft);
+  backdrop-filter: var(--surface-glass-blur-soft);
+}
+.drop-overlay-text {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
 /* ---------- 同屏全强度 blur 预算：引擎菜单打开时，搜索框降为中强度（菜单占全强度） ---------- */
 /* body:has 前缀确保不误伤搜索框单独 focus 时的全强度态 */
 body:has(#engine-menu:not([hidden])) .search-box,
@@ -1192,7 +1221,8 @@ html:has(.settings-panel:not([hidden])) .engine-menu {
   .engine-menu,
   .settings-panel,
   .quicklinks-dock,
-  .toast {
+  .toast,
+  .drop-overlay-box {
     background-color: var(--surface-glass-fallback-bg);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -1205,8 +1235,14 @@ html:has(.settings-panel:not([hidden])) .engine-menu {
   .engine-menu,
   .settings-panel,
   .quicklinks-dock,
-  .toast {
+  .toast,
+  .drop-overlay-box {
     background-color: var(--surface-glass-fallback-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .drop-overlay {
+    background-color: rgba(0, 0, 0, 0.55); /* 遮罩改不透明，保证提示文字可读 */
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -1216,8 +1252,14 @@ html.no-blur .search-box,
 html.no-blur .engine-menu,
 html.no-blur .settings-panel,
 html.no-blur .quicklinks-dock,
-html.no-blur .toast {
+html.no-blur .toast,
+html.no-blur .drop-overlay-box {
   background-color: var(--surface-glass-fallback-bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html.no-blur .drop-overlay {
+  background-color: rgba(0, 0, 0, 0.55);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }

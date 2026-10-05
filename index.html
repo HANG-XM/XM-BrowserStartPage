@@ -33,12 +33,12 @@
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005g" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005g" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261005g" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005h" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005h" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005h" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261005g"></script>
+  <script type="module" src="./src/main.js?v=20261005h"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
@@ -96,6 +96,13 @@
 
   <!-- 快速链接 Dock（macOS 风格托架，固定视口底部；由 quick-links.js 填充，无数据时隐藏） -->
   <section class="quicklinks-dock" id="quicklinks-dock" hidden></section>
+
+  <!-- 拖拽壁纸遮罩（N3：dragover 时显示，提示松开设为壁纸） -->
+  <div class="drop-overlay" id="drop-overlay" aria-hidden="true" hidden>
+    <div class="drop-overlay-box">
+      <p class="drop-overlay-text"></p>
+    </div>
+  </div>
 
   <!-- 设置遮罩层 -->
   <div class="settings-overlay" id="settings-overlay" aria-hidden="true" hidden></div>

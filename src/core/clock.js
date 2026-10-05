@@ -33,14 +33,17 @@ function resolveHour12(fmt) {
 
 // 模块级制式状态：init 时读一次，refreshClock() 时更新（不每秒读 storage）
 let currentHourFormat = storage.load().hourFormat;
+// 模块级秒数开关：init 时读一次，refreshClock() 时更新
+let currentShowSeconds = storage.load().showSeconds === true;
 // 当前 init 注册的渲染函数（未 init 或已 cleanup 时为 null）
 let activeRender = null;
 
 /**
- * 设置面板切换时钟制式后调用：重读配置并立即补一帧
+ * 设置面板切换时钟制式或秒数显示后调用：重读配置并立即补一帧
  */
 export function refreshClock() {
   currentHourFormat = storage.load().hourFormat;
+  currentShowSeconds = storage.load().showSeconds === true;
   if (activeRender) activeRender();
 }
 
@@ -61,7 +64,8 @@ export function initClock() {
   function render() {
     const now = new Date();
     const hour12 = resolveHour12(currentHourFormat);
-    clockEl.textContent = formatTime(now, hour12, { am: t('date.am'), pm: t('date.pm') });
+    clockEl.textContent = formatTime(now, hour12, { am: t('date.am'), pm: t('date.pm') }, currentShowSeconds);
+    clockEl.classList.toggle('has-seconds', currentShowSeconds);
     // datetime 属性始终使用 24 小时制，保证语义化取值稳定
     clockEl.setAttribute('datetime', formatTime(now, false));
     // 日期跨天才重写

@@ -126,6 +126,33 @@ export function initSettings() {
     return field;
   }
 
+  /** 构建「显示秒数」开关行 */
+  function buildShowSecondsToggle() {
+    const field = document.createElement('div');
+    field.className = 'settings-field';
+    const row = document.createElement('label');
+    row.className = 'settings-toggle-row';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'settings-toggle';
+    checkbox.checked = storage.load().showSeconds === true;
+
+    const text = document.createElement('span');
+    text.className = 'settings-toggle-text';
+    text.textContent = t('settings.showSeconds');
+
+    row.appendChild(checkbox);
+    row.appendChild(text);
+    field.appendChild(row);
+    // 切换不触发 render：持久化后 refreshClock 立即重绘，焦点保持在开关上
+    checkbox.addEventListener('change', () => {
+      storage.update({ showSeconds: checkbox.checked });
+      refreshClock();
+    });
+    return field;
+  }
+
   /** 构建「每日更换壁纸」开关行（含说明文字） */
   function buildDailyWallpaperToggle() {
     const field = document.createElement('div');
@@ -208,6 +235,9 @@ export function initSettings() {
       )
     );
     section.appendChild(hourWrap);
+
+    // N4：显示秒数开关（放在制式之后、显隐之前）
+    section.appendChild(buildShowSecondsToggle());
 
     // 显示问候语 / 显示日期开关
     section.appendChild(buildVisibilityToggle('settings.showGreeting', 'showGreeting'));

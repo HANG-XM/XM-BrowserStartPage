@@ -13,6 +13,7 @@ import { initQuickLinks } from './core/quick-links.js';
 import { initVisibility } from './core/element-visibility.js';
 import { initTheme } from './core/theme.js';
 import { initWallpaper } from './core/wallpaper.js';
+import { initDragWallpaper } from './core/drag-wallpaper.js';
 import { initSettings } from './settings/settings.js';
 import { storage } from './storage/storage.js';
 
@@ -31,6 +32,7 @@ function bootstrap() {
   const cleanupSearch = initSearch();
   const cleanupQuickLinks = initQuickLinks();
   const cleanupVisibility = initVisibility();
+  const cleanupDragWallpaper = initDragWallpaper();
   // 设置面板依赖以上模块，放最后
   const cleanupSettings = initSettings();
 
@@ -43,6 +45,7 @@ function bootstrap() {
     cleanupSearch();
     cleanupQuickLinks();
     cleanupVisibility();
+    cleanupDragWallpaper();
     cleanupSettings();
   });
 }

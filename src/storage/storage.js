@@ -22,6 +22,7 @@ const DEFAULT_CONFIG = {
   version: STORAGE_VERSION,
   theme: 'system',          // 'light' | 'dark' | 'system'
   hourFormat: '24',         // 时钟制式：'auto' | '12' | '24'
+  showSeconds: false,       // N4：时钟是否显示秒数
   searchEngine: 'bing',     // 默认搜索引擎标识
   searchBoxTransparency: 65, // 搜索框玻璃底透明度（UI 值 0~100，0=不透明，100=完全透明）
   autoFocus: getDefaultAutoFocus(), // 进入页面时是否自动聚焦搜索框（触屏默认关闭）

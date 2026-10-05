@@ -97,6 +97,10 @@ export default {
     tooLarge: 'Image exceeds 5MB and may load slowly',
     loadError: 'Failed to load image, reverted to default background',
     indexedDBUnavailable: 'Local images unavailable (IndexedDB not supported)',
+    dropHint: 'Release to set as wallpaper',
+    dropImageOnly: 'Images only',
+    dropSuccess: 'Wallpaper updated',
+    dropFailed: 'Failed to set wallpaper',
   },
   settings: {
     title: 'Settings',
@@ -124,6 +128,7 @@ export default {
     hourFormatAuto: 'Auto',
     hourFormat12: '12-hour',
     hourFormat24: '24-hour',
+    showSeconds: 'Show seconds',
     engine: 'Default search engine',
     autoFocus: 'Auto-focus search box',
     autoFocusHint: 'Focus the search box on load (recommended off on touch devices to avoid the keyboard popping up)',

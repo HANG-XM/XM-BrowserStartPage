@@ -96,6 +96,10 @@ export default {
     tooLarge: '图片超过 5MB，可能影响加载速度',
     loadError: '图片加载失败，已回退到默认背景',
     indexedDBUnavailable: '当前环境不支持本地图片（IndexedDB 不可用）',
+    dropHint: '松开鼠标以设为壁纸',
+    dropImageOnly: '仅支持图片文件',
+    dropSuccess: '已设为壁纸',
+    dropFailed: '设置壁纸失败',
   },
   settings: {
     title: '设置',
@@ -123,6 +127,7 @@ export default {
     hourFormatAuto: '自动',
     hourFormat12: '12 小时制',
     hourFormat24: '24 小时制',
+    showSeconds: '显示秒数',
     engine: '默认搜索引擎',
     autoFocus: '自动聚焦搜索框',
     autoFocusHint: '进入页面时自动聚焦搜索框（触屏设备建议关闭，避免自动弹出软键盘）',
