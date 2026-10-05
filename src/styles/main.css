@@ -104,8 +104,8 @@ body {
   justify-content: center;
   gap: var(--spacing-xl);
   padding: var(--spacing-lg);
-  /* 视觉重心略上移，符合起始页常见构图 */
-  padding-bottom: 15vh;
+  /* 视觉重心略上移，符合起始页常见构图；8rem 保底防止矮视口下与底部 Dock 贴住 */
+  padding-bottom: max(15vh, 8rem);
 }
 
 /* ---------- 时间 / 日期 / 问候语 ---------- */
@@ -1101,6 +1101,7 @@ body {
 .toast--success::before { background-color: var(--color-success); }
 .toast--warning::before { background-color: var(--color-warning); }
 .toast--error::before { background-color: var(--color-error); }
+.toast--info::before { background-color: var(--color-text-tertiary); } /* 中性灰，不带语义色 */
 
 /* ---------- 同屏全强度 blur 预算：引擎菜单打开时，搜索框降为中强度（菜单占全强度） ---------- */
 /* body:has 前缀确保不误伤搜索框单独 focus 时的全强度态 */
@@ -1197,7 +1198,7 @@ html.no-blur .toast {
   .app-main {
     gap: var(--spacing-lg);
     padding: var(--spacing-md);
-    padding-bottom: 10vh;
+    padding-bottom: max(10vh, 7rem);
   }
 
   .search-region {

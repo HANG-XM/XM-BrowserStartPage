@@ -51,6 +51,9 @@ const DAILY_POOL = [
 const LEGACY_TYPE_MAP = { color: 'solid', image: 'local', url: 'solid' };
 
 let currentConfig = normalizeConfig(storage.load().wallpaper);
+// 每日轮换开关缓存：init 时读一次，setDailyRotate/setWallpaper 同步更新
+// （避免滑块拖动的高频路径每次 input 都 storage.load() 触发 JSON.parse）
+let cachedDailyRotate = false;
 let currentObjectUrl = null; // 当前壁纸的 Object URL（type=local）
 let applySeq = 0;            // 异步应用序号，防止快速切换时的竞态
 
@@ -90,7 +93,7 @@ function localDateStr(date) {
 function resolveEffectiveConfig() {
   // currentConfig 是用户手动偏好（setOverlay/setBlur 后也是最新的）
   if (currentConfig.type === 'local') return { cfg: currentConfig, isDaily: false };
-  if (storage.load().wallpaperDailyRotate === true) {
+  if (cachedDailyRotate === true) {
     const pick = DAILY_POOL[hashSeed(localDateStr()) % DAILY_POOL.length];
     return { cfg: { ...currentConfig, ...pick }, isDaily: true };
   }
@@ -116,7 +119,8 @@ export function setWallpaper(config) {
   const prev = currentConfig;
   currentConfig = normalizeConfig({ ...currentConfig, ...config });
   // 用户主动选壁纸 → 退出每日轮换（setOverlay/setBlur 不走本函数，不会误关）
-  if (storage.load().wallpaperDailyRotate === true) {
+  if (cachedDailyRotate === true) {
+    cachedDailyRotate = false;
     storage.update({ wallpaperDailyRotate: false });
     showToast(t('settings.dailyWallpaperManual'), 'info');
   }
@@ -133,7 +137,8 @@ export function setWallpaper(config) {
  * @param {boolean} enabled
  */
 export function setDailyRotate(enabled) {
-  storage.update({ wallpaperDailyRotate: Boolean(enabled) });
+  cachedDailyRotate = Boolean(enabled);
+  storage.update({ wallpaperDailyRotate: cachedDailyRotate });
   // 当前是本地图片时开启也不生效，给出提示
   if (enabled && currentConfig.type === 'local') {
     showToast(t('settings.dailyWallpaperLocalActive'), 'warning');
@@ -245,14 +250,14 @@ function scheduleSave() {
  */
 export function initWallpaper() {
   // 跨天自动重算：仅在轮换可能生效时（开关开且非 local）
+  cachedDailyRotate = storage.load().wallpaperDailyRotate === true;
   let lastAppliedDate = localDateStr();
   function handleVisibilityChange() {
     if (document.hidden) return;
     const today = localDateStr();
     if (today !== lastAppliedDate) {
       lastAppliedDate = today;
-      const cfg = storage.load();
-      if (cfg.wallpaperDailyRotate === true && currentConfig.type !== 'local') {
+      if (cachedDailyRotate === true && currentConfig.type !== 'local') {
         applyWallpaper();
       }
     }

@@ -18,11 +18,17 @@ import { storage } from '../storage/storage.js';
  * @param {'auto'|'12'|'24'} fmt
  * @returns {boolean}
  */
+// auto 模式的 12/24 小时偏好：系统/区域设置在页面生命周期内不变，首次计算后缓存
+let cachedAutoHour12 = null;
+
 function resolveHour12(fmt) {
   if (fmt === '12') return true;
   if (fmt === '24') return false;
   // auto：跟随运行环境（系统 / 语言区域）的 12/24 小时偏好
-  return Boolean(Intl.DateTimeFormat().resolvedOptions().hour12);
+  if (cachedAutoHour12 === null) {
+    cachedAutoHour12 = Boolean(Intl.DateTimeFormat().resolvedOptions().hour12);
+  }
+  return cachedAutoHour12;
 }
 
 // 模块级制式状态：init 时读一次，refreshClock() 时更新（不每秒读 storage）

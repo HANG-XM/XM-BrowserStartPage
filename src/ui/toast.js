@@ -2,7 +2,7 @@
  * toast.js —— 轻提示组件
  *
  * 用法：showToast(message, type)
- *   type: 'success' | 'warning' | 'error'（默认 'success'）
+ *   type: 'success' | 'warning' | 'error' | 'info'（默认 'success'）
  *
  * 特点：
  * - 底部居中显示，多个纵向堆叠
@@ -12,7 +12,7 @@
  */
 
 const DEFAULT_DURATION = 3000; // 显示时长（毫秒）
-const TYPE_MAP = { success: 'success', warning: 'warning', error: 'error' };
+const TYPE_MAP = { success: 'success', warning: 'warning', error: 'error', info: 'info' };
 
 /** Toast 容器（懒创建，单例） */
 let container = null;
@@ -31,7 +31,7 @@ function ensureContainer() {
 /**
  * 显示一条 toast
  * @param {string} message 提示文案（如出错，自动回退展示 raw key）
- * @param {'success'|'warning'|'error'} [type='success']
+ * @param {'success'|'warning'|'error'|'info'} [type='success']
  */
 export function showToast(message, type = 'success') {
   const resolved = typeof message === 'string' ? message : String(message);
