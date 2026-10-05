@@ -106,6 +106,13 @@ body {
   padding: var(--spacing-lg);
   /* 视觉重心略上移，符合起始页常见构图；8rem 保底防止矮视口下与底部 Dock 贴住 */
   padding-bottom: max(15vh, 8rem);
+  /* 首屏淡入：初始透明，html.ready（main.js 初始化完成 / head 1s 兜底）后淡入，
+   * 柔化时钟 --:--、空问候语 / 日期被 JS 替换的跳变 */
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+html.ready .app-main {
+  opacity: 1;
 }
 
 /* ---------- 时间 / 日期 / 问候语 ---------- */
@@ -1341,6 +1348,11 @@ html.no-blur .drop-overlay {
   .quicklink-item,
   .ql-icon-btn {
     transition: none;
+  }
+  /* 首屏淡入在减弱动效偏好下取消，内容立即可见 */
+  .app-main {
+    transition: none;
+    opacity: 1;
   }
   /* 关闭按压反馈与菜单入场动画 */
   .settings-trigger:hover,

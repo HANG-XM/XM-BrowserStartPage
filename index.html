@@ -39,16 +39,22 @@
       } catch (e) {
         /* 读取失败保持默认 zh-CN */
       }
+
+      // ready 兜底：main.js 初始化完成会立即加 ready；若 main.js 加载 / 执行失败，
+      // 1s 后由此处强制加类，保证 .app-main 不会永远 opacity:0（白屏）
+      setTimeout(function () {
+        document.documentElement.classList.add('ready');
+      }, 1000);
     })();
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005i" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005i" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261005i" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005j" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005j" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005j" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261005i"></script>
+  <script type="module" src="./src/main.js?v=20261005j"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->

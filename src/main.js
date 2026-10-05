@@ -48,6 +48,9 @@ function bootstrap() {
     cleanupDragWallpaper();
     cleanupSettings();
   });
+
+  // 全部初始化完成：触发主内容首屏淡入（head 内联脚本另设 1s 兜底防白屏）
+  document.documentElement.classList.add('ready');
 }
 
 bootstrap();
