@@ -53,6 +53,8 @@
   /* 搜索框透明度可调：RGB 底色分亮暗两套，alpha 共用一个变量（默认 0.65） */
   --surface-glass-rgb: 255, 255, 255;
   --search-box-alpha: 0.65;
+  /* Dock 托架专用 alpha：不豁免玻璃地板（亮色 0.55，暗色 0.6 见暗色块） */
+  --surface-dock-alpha: 0.55;
 
   /* ---------- 引擎菜单专用表面（专项优化） ---------- */
   --surface-menu-rgb: 255, 255, 255;
@@ -111,6 +113,7 @@
   --transition-menu: 160ms; /* 引擎菜单入场时长（缓动由 transition-timing-function 单独声明） */
 
   /* ---------- 层级 ---------- */
+  --z-dock: 10; /* 快速链接 Dock：低于引擎菜单(99)/遮罩(99)/面板(100)/toast(200) */
   --z-settings: 100;
   --z-toast: 200; /* 高于抽屉与遮罩 */
 }
@@ -155,6 +158,7 @@
   --surface-glass-highlight: rgba(255, 255, 255, 0.06);
   /* 搜索框透明度可调：暗色 RGB 底色，alpha 沿用 :root 的 --search-box-alpha */
   --surface-glass-rgb: 28, 31, 38;
+  --surface-dock-alpha: 0.6;
 
   /* 引擎菜单专用表面（暗色） */
   --surface-menu-rgb: 34, 38, 47;

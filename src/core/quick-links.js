@@ -127,22 +127,24 @@ export function avatarIndex(title) {
  * 渲染主页面快速链接：无数据时隐藏整个容器，有数据时重建 <a> 列表
  */
 export function renderQuickLinks() {
-  const region = document.getElementById('quicklinks-region');
-  if (!region) return;
+  const dock = document.getElementById('quicklinks-dock');
+  if (!dock) return;
 
   const links = getLinks();
-  region.innerHTML = '';
+  dock.innerHTML = '';
   if (links.length === 0) {
-    region.hidden = true; // 添加第一个时移除，删除最后一个时加回
+    dock.hidden = true; // 添加第一个时移除，删除最后一个时加回
     return;
   }
-  region.hidden = false;
+  dock.hidden = false;
 
   const frag = document.createDocumentFragment();
   links.forEach((link) => {
     const a = document.createElement('a');
     a.className = 'quicklink-item';
     a.href = link.url;
+    a.title = link.title; // 悬停由浏览器显示原生 tooltip，不做自定义组件
+    a.setAttribute('aria-label', link.title); // 屏幕阅读器读完整标题（否则只读首字母）
 
     const avatar = document.createElement('span');
     avatar.className = 'quicklink-avatar';
@@ -150,15 +152,10 @@ export function renderQuickLinks() {
     avatar.textContent = Array.from(link.title.trim())[0] || '?';
     avatar.style.backgroundColor = `var(--color-avatar-${avatarIndex(link.title) + 1})`;
 
-    const name = document.createElement('span');
-    name.className = 'quicklink-title';
-    name.textContent = link.title;
-
     a.appendChild(avatar);
-    a.appendChild(name);
     frag.appendChild(a);
   });
-  region.appendChild(frag);
+  dock.appendChild(frag);
 }
 
 /**
@@ -168,7 +165,7 @@ export function renderQuickLinks() {
 export function initQuickLinks() {
   renderQuickLinks();
   return function cleanupQuickLinks() {
-    const region = document.getElementById('quicklinks-region');
-    if (region) region.innerHTML = '';
+    const dock = document.getElementById('quicklinks-dock');
+    if (dock) dock.innerHTML = '';
   };
 }

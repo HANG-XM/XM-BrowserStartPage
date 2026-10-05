@@ -33,12 +33,12 @@
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261004l" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261004l" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261004l" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005b" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005b" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005b" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261004l"></script>
+  <script type="module" src="./src/main.js?v=20261005b"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
@@ -70,9 +70,6 @@
         <p class="greeting" id="greeting"></p>
       </section>
 
-      <!-- 快速链接区域（空容器，由 quick-links.js 填充；无数据时隐藏不占位） -->
-      <section class="quicklinks-region" id="quicklinks-region" hidden></section>
-
       <!-- 搜索区域 -->
       <section class="search-region" aria-label="搜索">
         <form class="search-form" id="search-form" role="search">
@@ -94,6 +91,9 @@
     </main>
 
   </div>
+
+  <!-- 快速链接 Dock（macOS 风格托架，固定视口底部；由 quick-links.js 填充，无数据时隐藏） -->
+  <section class="quicklinks-dock" id="quicklinks-dock" hidden></section>
 
   <!-- 设置遮罩层 -->
   <div class="settings-overlay" id="settings-overlay" aria-hidden="true" hidden></div>
