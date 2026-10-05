@@ -69,7 +69,7 @@
   --spacing-menu-gap: 0.125rem;
   --size-menu-item: 2.5rem;
   --width-menu-min: 12rem;
-  --height-menu-max: min(60vh, 20rem);
+  --height-menu-max: min(70vh, 24rem); /* M2: 放宽上限，为将来引擎列表扩展留缓冲 */
   --transition-menu-exit: 100ms;
 
   /* ---------- 字体（仅系统字体栈，不引入外部字体） ---------- */

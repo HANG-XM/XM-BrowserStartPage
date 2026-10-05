@@ -324,7 +324,7 @@ body {
 /* 引擎下拉菜单 */
 .engine-menu {
   position: absolute;
-  top: calc(100% + var(--spacing-xs));
+  top: calc(100% + 6px); /* M1: 菜单与搜索框之间留 6px 呼吸空间 */
   left: 0;
   display: flex;
   flex-direction: column;
@@ -343,12 +343,14 @@ body {
   /* 全强度 blur（与搜索框共用同屏预算，菜单打开时搜索框降级） */
   -webkit-backdrop-filter: var(--surface-glass-blur);
   backdrop-filter: var(--surface-glass-blur);
-  transform-origin: top left;
+  transform-origin: 1.375rem top; /* M5: 从左侧引擎按钮中心长出 */
   /* 入场/出场过渡：长手写避免旧浏览器因 display 丢弃整条规则 */
   transition-property: opacity, transform, display;
   transition-duration: var(--transition-menu);
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   transition-behavior: allow-discrete;
+  /* M7: 入场位移方向，矮视口向上展开时由媒体查询覆盖为 6px */
+  --menu-start-y: -6px;
   /* 滚动条 */
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar-thumb) transparent;
@@ -365,7 +367,7 @@ body {
 }
 .engine-menu[hidden] {
   opacity: 0;
-  transform: scale(0.98) translateY(-6px);
+  transform: scale(0.98) translateY(var(--menu-start-y));
   display: none;
   transition-duration: var(--transition-menu-exit);
 }
@@ -373,7 +375,17 @@ body {
 @starting-style {
   .engine-menu:not([hidden]) {
     opacity: 0;
-    transform: scale(0.98) translateY(-6px);
+    transform: scale(0.98) translateY(var(--menu-start-y));
+  }
+}
+
+/* M7: 矮视口向上展开，动画方向同步翻转 */
+@media (max-height: 500px) {
+  .engine-menu {
+    top: auto;
+    bottom: calc(100% + 6px);
+    transform-origin: 1.375rem bottom;
+    --menu-start-y: 6px;
   }
 }
 
@@ -428,6 +440,13 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* M6: 触屏菜单项高度提升（≤720px），须位于 .engine-menu-item 基础规则之后 */
+@media (max-width: 720px) {
+  .engine-menu-item {
+    min-height: 2.75rem;
+  }
 }
 
 /* Tab 栏 */
@@ -808,6 +827,12 @@ body {
   border-radius: var(--radius-md);
   padding: var(--spacing-xs);
 }
+/* S1(b): 搜索分区的引擎 2×2 网格（中英文混排宽度不均，其余 segmented 保持单行） */
+.segmented--search-engine {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
 .segmented-item {
   flex: 1;
   padding: var(--spacing-sm);
@@ -1109,6 +1134,7 @@ body:has(#engine-menu:not([hidden])) .search-box,
 body:has(#engine-menu:not([hidden])) .search-box:focus-within {
   -webkit-backdrop-filter: var(--surface-glass-blur-soft);
   backdrop-filter: var(--surface-glass-blur-soft);
+  border-color: var(--color-accent); /* M8: 菜单打开时保持强调边框 */
 }
 
 /* ---------- 同屏全强度 blur 预算：设置面板打开时，搜索框 + 引擎菜单降为中强度 ---------- */

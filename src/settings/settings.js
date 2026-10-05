@@ -522,16 +522,17 @@ export function initSettings() {
     label.className = 'settings-label';
     label.textContent = t('settings.engine');
     field.appendChild(label);
-    field.appendChild(
-      createSegmented(
-        ENGINES.map((e) => ({ value: e.id, label: t(`search.engines.${e.id}`) })),
-        getSearchEngine(),
-        (val) => {
-          setSearchEngine(val);
-          render();
-        }
-      )
+    // 引擎 4 项中英文混排宽度不均，抽屉内用 2×2 网格（其余 segmented 保持单行）
+    const engineSeg = createSegmented(
+      ENGINES.map((e) => ({ value: e.id, label: t(`search.engines.${e.id}`) })),
+      getSearchEngine(),
+      (val) => {
+        setSearchEngine(val);
+        render();
+      }
     );
+    engineSeg.classList.add('segmented--search-engine');
+    field.appendChild(engineSeg);
     section.appendChild(field);
 
     // 搜索结果打开方式：新标签页 / 当前页
@@ -954,10 +955,10 @@ export function initSettings() {
     trigger.setAttribute('aria-label', t('settings.open'));
     bodyEl.innerHTML = '';
     bodyEl.appendChild(buildAppearanceSection());
+    bodyEl.appendChild(buildQuickLinksSection());
     bodyEl.appendChild(buildSearchSection());
     bodyEl.appendChild(buildLanguageSection());
     bodyEl.appendChild(buildDataSection());
-    bodyEl.appendChild(buildQuickLinksSection());
     bodyEl.appendChild(buildAboutSection());
     restoreFocus(prevFocus);
   }
