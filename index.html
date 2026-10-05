@@ -33,12 +33,12 @@
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005f" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005f" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261005f" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005g" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005g" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005g" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261005f"></script>
+  <script type="module" src="./src/main.js?v=20261005g"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
@@ -82,6 +82,8 @@
                    autocomplete="off" autocapitalize="off" spellcheck="false"
                    enterkeyhint="search"
                    placeholder="搜索…" />
+            <!-- 输入意图提示（N1：URL 访问 / 引擎搜索，悬于框内右侧，不占布局） -->
+            <span class="search-hint" id="search-hint" hidden></span>
             <!-- 引擎下拉菜单 -->
             <div class="engine-menu" id="engine-menu" role="listbox" hidden></div>
           </div>

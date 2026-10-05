@@ -11,6 +11,10 @@ export default {
   page: {
     title: 'XM 起始页',
   },
+  // 主页面快速链接 Dock（设置面板内的管理文案在 settings.quickLinks）
+  quickLinks: {
+    dockLabel: '快速链接',
+  },
   greeting: {
     // 每时段一个候选池：第 1 项为「钟点锚点」（承担报时功能，不可被窗外景况证伪），
     // 其余为轻陈述句。池长度即取模基数，增删任一条都会改变当天所有用户看到的句子。
@@ -69,6 +73,8 @@ export default {
     placeholder: '在 {engine} 中搜索',
     inputLabel: '搜索框，当前引擎：{engine}',
     engineMenu: '切换搜索引擎，当前：{engine}',
+    hintVisit: '访问 {url}',
+    hintSearch: '用 {engine} 搜索',
     engines: {
       google: 'Google',
       bing: '必应',

@@ -174,7 +174,7 @@ body {
               box-shadow var(--transition-interact);
 }
 .quicklink-item:hover {
-  transform: translateY(-0.125rem) scale(1.1); /* 悬停上浮 + 放大 */
+  transform: translateY(-0.125rem) scale(1.08); /* 悬停上浮 + 轻微放大（1.1 会遮挡相邻图标） */
   box-shadow: var(--shadow-md);
 }
 .quicklink-item:active {
@@ -319,6 +319,34 @@ body {
 }
 .search-input::placeholder {
   color: var(--color-text-tertiary);
+}
+
+/* N1: 输入意图提示 —— 悬于搜索框内右侧，pointer-events 穿透，不占布局 */
+.search-hint {
+  position: absolute;
+  top: 50%;
+  right: 0.875rem;
+  transform: translateY(-50%);
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  user-select: none;
+}
+/* 方案 A：提示显示时给输入框预留右侧空间，避免长输入被提示覆盖；不改元素尺寸，无布局跳动 */
+.search-box--hint-visible .search-input {
+  padding-right: 9rem;
+}
+@media (max-width: 720px) {
+  .search-hint {
+    max-width: 5rem;
+  }
+  .search-box--hint-visible .search-input {
+    padding-right: 6rem;
+  }
 }
 
 /* 引擎下拉菜单 */
@@ -1149,6 +1177,14 @@ html:has(.settings-panel:not([hidden])) .engine-menu {
 /* 注意：选择器列表必须包含 .search-box:focus-within（0,2,0），
  * 否则其 backdrop-filter 会以更高优先级盖过降级规则。
  * 列表中不能放 :has() 选择器——老浏览器会因单个无效选择器丢弃整条规则。 */
+/* S2(c)：纯色/渐变壁纸下 Dock 去 blur（blur 无可见效果，纯合成开销）。
+ * :where() 把属性选择器特异性归零（等效 0,1,0），本规则盖过 .quicklinks-dock 基础规则，
+ * 但不影响下面 @supports / prefers-reduced-transparency / no-blur 降级规则（它们同为 0,1,0 且写在后面）。 */
+:where(html[data-wallpaper-type="solid"], html[data-wallpaper-type="gradient"]) .quicklinks-dock {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* a. 浏览器不支持 backdrop-filter：回退为不透明浮层 */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .search-box,

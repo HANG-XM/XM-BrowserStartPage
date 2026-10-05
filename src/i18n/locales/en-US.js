@@ -11,6 +11,10 @@ export default {
   page: {
     title: 'XM Start Page',
   },
+  // Quick-links dock on the main page (management UI copy lives in settings.quickLinks)
+  quickLinks: {
+    dockLabel: 'Quick links',
+  },
   greeting: {
     // One candidate pool per period: the first item is the clock anchor (it tells the time and
     // can never be contradicted by what's outside the window); the rest are quiet statements.
@@ -70,6 +74,8 @@ export default {
     placeholder: 'Search on {engine}',
     inputLabel: 'Search input, current engine: {engine}',
     engineMenu: 'Switch search engine, current: {engine}',
+    hintVisit: 'Visit {url}',
+    hintSearch: 'Search on {engine}',
     engines: {
       google: 'Google',
       bing: 'Bing',

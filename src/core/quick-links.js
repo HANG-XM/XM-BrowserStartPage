@@ -8,6 +8,7 @@
  * - 设置面板的增删改直接调用本模块 API 后重渲染，立即生效
  */
 import { storage } from '../storage/storage.js';
+import { t, onLanguageChange } from '../i18n/index.js';
 import { hashSeed } from './greeting.js';
 
 /** 快速链接数量上限 */
@@ -163,9 +164,15 @@ export function renderQuickLinks() {
  * @returns {() => void} 清理函数
  */
 export function initQuickLinks() {
+  const dock = document.getElementById('quicklinks-dock');
+  const applyLabel = () => {
+    if (dock) dock.setAttribute('aria-label', t('quickLinks.dockLabel'));
+  };
+  applyLabel();
+  const offLanguageChange = onLanguageChange(applyLabel);
   renderQuickLinks();
   return function cleanupQuickLinks() {
-    const dock = document.getElementById('quicklinks-dock');
+    offLanguageChange();
     if (dock) dock.innerHTML = '';
   };
 }

@@ -92,10 +92,10 @@ export function isUrlLike(input) {
   if (/^https?:\/\//.test(lower)) return true;
   // 以 www. 开头
   if (/^www\./.test(lower)) return true;
-  // localhost / 局域网 IP / 公网 IP（可带端口）
-  if (/^(localhost|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)(:\d+)?$/.test(trimmed)) return true;
-  // 匹配 x.x.tld 或 x.tld 格式（域名含点 + 常见后缀）
-  const match = lower.match(/\b([a-z0-9-]+\.)+([a-z]{2,})(:\d+)?$/);
+  // localhost / 局域网 IP / 公网 IP（可带端口与路径）
+  if (/^(localhost|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)(:\d+)?([/?#]\S*)?$/.test(trimmed)) return true;
+  // 匹配 x.x.tld 或 x.tld 格式（域名含点 + 常见后缀，可带端口与路径/查询）
+  const match = lower.match(/^([a-z0-9-]+\.)+([a-z]{2,})(:\d+)?([/?#]\S*)?$/);
   if (match) {
     const tld = match[2];
     if (COMMON_TLDS.has(tld)) return true;
@@ -146,6 +146,37 @@ export function initSearch() {
   let focusIndex = -1; // 下拉菜单中当前键盘焦点索引
 
   // ----------------------------------------------------------
+  // N1 · 输入意图提示（悬于搜索框内右侧）
+  // ----------------------------------------------------------
+  const hint = document.getElementById('search-hint');
+  const searchBox = input.closest('.search-box');
+
+  /** 根据当前输入 + 焦点状态更新提示：URL → 「访问 x」；其他 → 「用 {引擎} 搜索」 */
+  function updateHint() {
+    if (!hint) return;
+    const value = input.value.trim();
+    const focused = document.activeElement === input;
+    if (!value || !focused) {
+      hideHint();
+      return;
+    }
+    if (isUrlLike(value)) {
+      hint.textContent = t('search.hintVisit', { url: value });
+    } else {
+      const engine = ENGINE_MAP.get(currentEngineId) || ENGINES[0];
+      hint.textContent = t('search.hintSearch', { engine: t(`search.engines.${engine.id}`) });
+    }
+    hint.hidden = false;
+    searchBox.classList.add('search-box--hint-visible');
+  }
+
+  function hideHint() {
+    if (!hint) return;
+    hint.hidden = true;
+    searchBox.classList.remove('search-box--hint-visible');
+  }
+
+  // ----------------------------------------------------------
   // 渲染
   // ----------------------------------------------------------
 
@@ -165,6 +196,8 @@ export function initSearch() {
       item.setAttribute('aria-selected', String(isSelected));
       item.classList.toggle('selected', isSelected);
     });
+
+    updateHint(); // 引擎 / 语言切换后提示文案跟随
   }
 
   /** 构建下拉菜单 DOM */
@@ -236,6 +269,7 @@ export function initSearch() {
     e.preventDefault();
     const value = input.value.trim();
     if (!value) return;
+    hideHint(); // N1：提交后提示消失
     const result = resolveInput(value); // URL 直访与搜索统一在此解析
     // 打开方式：'current' 当前页跳转；'new'（默认）新标签页打开
     if (storage.load().searchOpenIn === 'current') {
@@ -251,6 +285,11 @@ export function initSearch() {
 
   toggle.addEventListener('click', toggleMenu);
   form.addEventListener('submit', handleSubmit);
+
+  // N1：输入 / 聚焦 / 失焦驱动意图提示
+  input.addEventListener('input', updateHint);
+  input.addEventListener('focus', updateHint);
+  input.addEventListener('blur', hideHint);
 
   /** 点击菜单外部关闭 */
   function handleDocumentClick(e) {
@@ -353,6 +392,9 @@ export function initSearch() {
   return function cleanupSearch() {
     toggle.removeEventListener('click', toggleMenu);
     form.removeEventListener('submit', handleSubmit);
+    input.removeEventListener('input', updateHint);
+    input.removeEventListener('focus', updateHint);
+    input.removeEventListener('blur', hideHint);
     document.removeEventListener('click', handleDocumentClick);
     menu.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('keydown', handleGlobalKeydown);

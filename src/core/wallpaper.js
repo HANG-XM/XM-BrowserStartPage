@@ -209,6 +209,7 @@ export async function applyWallpaper() {
   // catch 分支可能已把 currentConfig 改写为 solid 回退，后续必须读最新的 currentConfig.type
   const finalType = currentConfig.type === 'local' && seq === applySeq ? 'local' : (background ? type : 'solid');
   layer.dataset.wallpaperType = finalType; // 供 CSS 按壁纸类型控制噪点纹理（仅 solid/gradient 显示）
+  document.documentElement.dataset.wallpaperType = finalType; // S2(c)：无本地图片时 Dock 去 blur，减少合成开销
   // 按类型分属性写，避免 background 简写属性覆盖 CSS 的 background-size/position/repeat
   if (finalType === 'solid') {
     layer.style.backgroundColor = background;
