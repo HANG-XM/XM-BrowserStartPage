@@ -29,16 +29,26 @@
         mode === 'dark' ||
         (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+
+      // 语言：影响字体渲染和 placeholder 预置，head 里只写 documentElement.lang
+      try {
+        var lang = localStorage.getItem('xm-startpage:language') || 'zh-CN';
+        if (lang === 'en-US' || lang === 'zh-CN') {
+          document.documentElement.lang = lang;
+        }
+      } catch (e) {
+        /* 读取失败保持默认 zh-CN */
+      }
     })();
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005h" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005h" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261005h" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005i" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005i" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005i" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261005h"></script>
+  <script type="module" src="./src/main.js?v=20261005i"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
@@ -74,14 +84,14 @@
       <section class="search-region" aria-label="搜索">
         <form class="search-form" id="search-form" role="search">
           <div class="search-box">
-            <!-- 引擎切换按钮 -->
+            <!-- 引擎切换按钮（预置默认引擎必应图标，JS 会替换） -->
             <button class="engine-toggle" id="engine-toggle" type="button"
                     aria-haspopup="listbox" aria-expanded="false"
-                    aria-label="切换搜索引擎"></button>
+                    aria-label="切换搜索引擎"><span class="engine-icon">b</span></button>
             <input class="search-input" id="search-input" type="text"
                    autocomplete="off" autocapitalize="off" spellcheck="false"
                    enterkeyhint="search"
-                   placeholder="搜索…" />
+                   placeholder="在 必应 中搜索" />
             <!-- 输入意图提示（N1：URL 访问 / 引擎搜索，悬于框内右侧，不占布局） -->
             <span class="search-hint" id="search-hint" hidden></span>
             <!-- 引擎下拉菜单 -->
@@ -111,7 +121,7 @@
   <aside class="settings-panel" id="settings-panel" role="dialog" aria-modal="true"
          aria-labelledby="settings-title" hidden>
     <header class="settings-header">
-      <h2 id="settings-title"></h2>
+      <h2 id="settings-title">设置</h2>
       <button class="settings-close" id="settings-close" type="button" aria-label="关闭设置">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -125,6 +135,57 @@
       <!-- 各分区由 settings.js 动态构建 -->
     </div>
   </aside>
+
+  <!--
+    预置首屏状态：在 ES Module 执行前（同步），把存储里的壁纸 / 语言相关初始值
+    直接写进 DOM，避免 first-paint 到 JS 执行之间的占位符闪烁。
+    注意：此脚本在 </body> 前同步执行，此时 body 里的元素已全部解析。
+  -->
+  <script>
+    (function () {
+      try {
+        var cfg = JSON.parse(localStorage.getItem('xm-startpage:config') || '{}');
+
+        // 壁纸：预置类型和背景，避免壁纸层从空到有 / 从默认到实际的闪烁
+        var wp = cfg.wallpaper || {};
+        if (wp.type) {
+          document.documentElement.dataset.wallpaperType = wp.type;
+          var wpEl = document.getElementById('wallpaper');
+          if (wpEl) {
+            if (wp.type === 'solid' && wp.value) {
+              wpEl.style.backgroundColor = wp.value;
+            } else if (wp.type === 'gradient' && wp.value) {
+              wpEl.style.backgroundImage = wp.value;
+            }
+            // 'local' 类型依赖 IndexedDB，无法预置，接受短暂默认背景
+          }
+        }
+
+        // 语言：预置搜索框 placeholder 和设置标题
+        var lang = 'zh-CN';
+        try {
+          lang = localStorage.getItem('xm-startpage:language') || 'zh-CN';
+        } catch (e) { /* 保持默认 */ }
+
+        var phMap = {
+          'zh-CN': '在 必应 中搜索',
+          'en-US': 'Search on Bing'
+        };
+        var titleMap = {
+          'zh-CN': '设置',
+          'en-US': 'Settings'
+        };
+
+        var si = document.getElementById('search-input');
+        if (si) si.placeholder = phMap[lang] || phMap['zh-CN'];
+
+        var st = document.getElementById('settings-title');
+        if (st) st.textContent = titleMap[lang] || titleMap['zh-CN'];
+      } catch (e) {
+        // 全部失败时静默降级为 HTML 默认值
+      }
+    })();
+  </script>
 
 </body>
 </html>
