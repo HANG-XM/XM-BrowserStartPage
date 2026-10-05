@@ -1165,11 +1165,14 @@ body {
   position: fixed;
   inset: 0;
   z-index: calc(var(--z-settings) - 1); /* 在设置面板下方，避免拖拽时遮挡抽屉 */
-  display: grid;
   place-items: center;
   background-color: rgba(0, 0, 0, 0.35);
   -webkit-backdrop-filter: var(--surface-glass-blur-soft);
   backdrop-filter: var(--surface-glass-blur-soft);
+}
+/* 显式 display 必须走 :not([hidden])，避免压过 UA 的 [hidden]{display:none} */
+.drop-overlay:not([hidden]) {
+  display: grid;
 }
 .drop-overlay-box {
   padding: var(--spacing-lg) var(--spacing-xl);
