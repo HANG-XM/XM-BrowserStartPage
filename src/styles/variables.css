@@ -111,6 +111,7 @@
   --transition-interact: 120ms cubic-bezier(0.16, 1, 0.3, 1); /* 按压反馈（hover 上浮 / active 按压） */
   --transition-segment: 150ms ease; /* 分段控件选中态切换 */
   --transition-menu: 160ms; /* 引擎菜单入场时长（缓动由 transition-timing-function 单独声明） */
+  --transition-fade: 120ms; /* 首屏主内容淡入时长 */
 
   /* ---------- 层级 ---------- */
   --z-dock: 10; /* 快速链接 Dock：低于引擎菜单(99)/遮罩(99)/面板(100)/toast(200) */

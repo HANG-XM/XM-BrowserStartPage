@@ -53,6 +53,11 @@ export function initSettings() {
   }
   applySearchBoxAlpha(); // 初始化时从配置应用
 
+  // 首屏不构建面板内容，但齿轮 / 关闭按钮的 aria-label 必须在初始化时设好，
+  // 否则 en-US 用户首次打开前会看到 HTML 里硬编码的中文「打开设置 / 关闭设置」
+  trigger.setAttribute('aria-label', t('settings.open'));
+  closeBtn.setAttribute('aria-label', t('settings.close'));
+
   // 导入用的隐藏文件选择框（全局复用，仅接受 JSON）
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
@@ -1092,8 +1097,6 @@ export function initSettings() {
     // 更新 trigger 的 aria-label
     trigger.setAttribute('aria-label', t('settings.open'));
   });
-
-  render(); // 初始渲染
 
   // 主题切换时重算搜索框 alpha（地板值不同）
   const themeObserver = new MutationObserver(() => {

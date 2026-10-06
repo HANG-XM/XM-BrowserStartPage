@@ -109,7 +109,7 @@ body {
   /* 首屏淡入：初始透明，html.ready（main.js 初始化完成 / head 1s 兜底）后淡入，
    * 柔化时钟 --:--、空问候语 / 日期被 JS 替换的跳变 */
   opacity: 0;
-  transition: opacity 300ms ease-out;
+  transition: opacity var(--transition-fade) ease-out;
 }
 html.ready .app-main {
   opacity: 1;

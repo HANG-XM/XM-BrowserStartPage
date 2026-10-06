@@ -40,21 +40,29 @@
         /* 读取失败保持默认 zh-CN */
       }
 
-      // ready 兜底：main.js 初始化完成会立即加 ready；若 main.js 加载 / 执行失败，
-      // 1s 后由此处强制加类，保证 .app-main 不会永远 opacity:0（白屏）
+      // ready 兜底：main.js 加载失败时立即开门；5s 超长兜底防静默卡死
+      // 用捕获阶段 error 委托（资源 error 不冒泡，但会在捕获阶段到达 document），
+      // 这样即使 head 脚本执行时 main.js 的 <script> 标签尚未解析也能命中
+      document.addEventListener('error', function (e) {
+        var t = e.target;
+        if (t && t.tagName === 'SCRIPT' && t.src && /main\.js(\?|$)/.test(t.src)) {
+          document.documentElement.classList.add('ready');
+        }
+      }, true);
+      // 超长兜底：防止 main.js 静默卡住（无 error 事件也无 add('ready')）导致永白屏
       setTimeout(function () {
         document.documentElement.classList.add('ready');
-      }, 1000);
+      }, 5000);
     })();
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005j" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005j" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261005j" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005k" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005k" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005k" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261005j"></script>
+  <script type="module" src="./src/main.js?v=20261005k"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->
