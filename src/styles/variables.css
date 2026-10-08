@@ -50,9 +50,10 @@
   --surface-glass-blur: blur(20px) saturate(160%);
   --surface-glass-blur-soft: blur(12px) saturate(150%);
   --surface-glass-fallback-bg: var(--color-bg-elevated); /* 降级时回退为不透明浮层色，随主题解析 */
-  /* 搜索框透明度可调：RGB 底色分亮暗两套，alpha 共用一个变量（默认 0.65） */
+  /* 搜索框透明度可调：RGB 底色分亮暗两套，alpha 分主题定义（默认 0.58）；
+     用户未拖过滑块时走此默认（storage.searchBoxTransparency = null 不写 inline） */
   --surface-glass-rgb: 255, 255, 255;
-  --search-box-alpha: 0.65;
+  --search-box-alpha: 0.58;
   /* Dock 托架专用 alpha：不豁免玻璃地板（亮色 0.55，暗色 0.6 见暗色块） */
   --surface-dock-alpha: 0.55;
 
@@ -96,6 +97,7 @@
   --radius-md: 8px;
   --radius-lg: 16px;
   --radius-full: 999px;
+  --radius-quicklink: 25%; /* Dock 图标圆角方形（56px→14、48px→12、36px→9，随尺寸等比） */
 
   /* ---------- 阴影（亮色：双层 = 短距贴地 + 长距扩散） ---------- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.06);
@@ -157,8 +159,9 @@
   --surface-glass-bg: rgba(28, 31, 38, 0.6);
   --surface-glass-border: rgba(255, 255, 255, 0.08);
   --surface-glass-highlight: rgba(255, 255, 255, 0.06);
-  /* 搜索框透明度可调：暗色 RGB 底色，alpha 沿用 :root 的 --search-box-alpha */
+  /* 搜索框透明度可调：暗色 RGB 底色，alpha 分主题定义（默认 0.62） */
   --surface-glass-rgb: 28, 31, 38;
+  --search-box-alpha: 0.62;
   --surface-dock-alpha: 0.6;
 
   /* 引擎菜单专用表面（暗色） */

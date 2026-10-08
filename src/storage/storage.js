@@ -25,7 +25,7 @@ const DEFAULT_CONFIG = {
   showSeconds: false,       // N4：时钟是否显示秒数
   noBlur: false,            // 手动关闭玻璃模糊（html.no-blur 降级开关）
   searchEngine: 'bing',     // 默认搜索引擎标识
-  searchBoxTransparency: 65, // 搜索框玻璃底透明度（UI 值 0~100，0=不透明，100=完全透明）
+  searchBoxTransparency: null, // 搜索框玻璃底透明度：null=未自定义（走 CSS 按主题默认 0.58/0.62）；拖动滑块后存 UI 值 0~100（0=不透明，100=完全透明）
   autoFocus: getDefaultAutoFocus(), // 进入页面时是否自动聚焦搜索框（触屏默认关闭）
   quickLinks: [],          // 快速链接：每项 { id, title, url }，最多 8 个
   showGreeting: true,      // 是否显示问候语

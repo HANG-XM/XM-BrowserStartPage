@@ -174,13 +174,13 @@ html.ready .app-main {
   display: none; /* WebKit 隐藏滚动条 */
 }
 
-/* 圆形图标（<a> 本体；transform 写在这里） */
+/* 圆角方形图标（<a> 本体；transform 写在这里） */
 .quicklink-item {
   display: block;
   flex: 0 0 auto;
   width: 3.5rem;
   height: 3.5rem;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-quicklink);
   transition: transform var(--transition-interact),
               box-shadow var(--transition-interact);
 }
@@ -206,7 +206,7 @@ html.ready .app-main {
   line-height: 1;
   color: #fff; /* 头像底色均按白字 ≥4.5:1 挑选 */
   text-transform: uppercase;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-quicklink);
 }
 
 /* 平板：48px 图标 */

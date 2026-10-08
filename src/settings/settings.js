@@ -44,9 +44,13 @@ export function initSettings() {
 
   let isOpen = false;
 
-  /** 将搜索框透明度写入 CSS 变量（仅 .search-box 使用） */
+  /** 将搜索框透明度写入 CSS 变量（仅 .search-box 使用；null=未自定义，清除 inline 走 CSS 按主题默认） */
   function applySearchBoxAlpha(transparency) {
-    const t = transparency ?? storage.load().searchBoxTransparency ?? 65;
+    const t = transparency ?? storage.load().searchBoxTransparency;
+    if (t == null) {
+      document.documentElement.style.removeProperty('--search-box-alpha');
+      return;
+    }
     const floor = document.documentElement.dataset.theme === 'dark' ? 0.6 : 0.55;
     const alpha = 1 - (t / 100) * (1 - floor);
     document.documentElement.style.setProperty('--search-box-alpha', alpha);
@@ -1168,10 +1172,9 @@ export function initSettings() {
     trigger.setAttribute('aria-label', t('settings.open'));
   });
 
-  // 主题切换时重算搜索框 alpha（地板值不同）
+  // 主题切换时重算搜索框 alpha（地板值不同；null 直传 → 清除 inline 走 CSS 按主题默认）
   const themeObserver = new MutationObserver(() => {
-    const transparency = storage.load().searchBoxTransparency ?? 65;
-    applySearchBoxAlpha(transparency);
+    applySearchBoxAlpha(storage.load().searchBoxTransparency);
   });
   themeObserver.observe(document.documentElement, {
     attributes: true,
