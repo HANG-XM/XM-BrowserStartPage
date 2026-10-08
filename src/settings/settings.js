@@ -158,6 +158,33 @@ export function initSettings() {
     return field;
   }
 
+  /** 构建「关闭玻璃模糊」开关行 */
+  function buildNoBlurToggle() {
+    const field = document.createElement('div');
+    field.className = 'settings-field';
+    const row = document.createElement('label');
+    row.className = 'settings-toggle-row';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'settings-toggle';
+    checkbox.checked = storage.load().noBlur === true;
+
+    const text = document.createElement('span');
+    text.className = 'settings-toggle-text';
+    text.textContent = t('settings.noBlur');
+
+    row.appendChild(checkbox);
+    row.appendChild(text);
+    field.appendChild(row);
+    // 切换不 render 面板：持久化后立即切换 html.no-blur 类，焦点保持在开关
+    checkbox.addEventListener('change', () => {
+      storage.update({ noBlur: checkbox.checked });
+      document.documentElement.classList.toggle('no-blur', checkbox.checked);
+    });
+    return field;
+  }
+
   /** 构建「每日更换壁纸」开关行（含说明文字） */
   function buildDailyWallpaperToggle() {
     const field = document.createElement('div');
@@ -243,6 +270,8 @@ export function initSettings() {
 
     // N4：显示秒数开关（放在制式之后、显隐之前）
     section.appendChild(buildShowSecondsToggle());
+    // 手动关闭玻璃模糊
+    section.appendChild(buildNoBlurToggle());
 
     // 显示问候语 / 显示日期开关
     section.appendChild(buildVisibilityToggle('settings.showGreeting', 'showGreeting'));
@@ -298,6 +327,18 @@ export function initSettings() {
     solidPanel.className = 'wallpaper-tab-panel';
     const solidGrid = document.createElement('div');
     solidGrid.className = 'swatch-grid';
+    // 「无壁纸」格（首位）：清空背景，透出主题底色
+    const noneBtn = document.createElement('button');
+    noneBtn.type = 'button';
+    noneBtn.className = 'swatch swatch--none';
+    noneBtn.dataset.value = '';
+    noneBtn.setAttribute('aria-label', t('settings.wallpaper.none'));
+    noneBtn.addEventListener('click', () => {
+      setWallpaper({ type: 'solid', value: '' });
+      renderWpPanels();
+      markSwatches();
+    });
+    solidGrid.appendChild(noneBtn);
     SOLID_PRESETS.forEach((color, index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -816,7 +857,7 @@ export function initSettings() {
       render();
     }
 
-    saveBtn.addEventListener('click', () => {
+    function saveEdit() {
       const result = updateLink(link.id, { title: titleInput.value, url: urlInput.value });
       if (!result.ok) {
         const reasonMap = {
@@ -828,8 +869,23 @@ export function initSettings() {
       }
       renderQuickLinks();
       render();
-    });
+    }
+    saveBtn.addEventListener('click', saveEdit);
     cancelBtn.addEventListener('click', cancelEdit);
+
+    // Enter：标题框跳到 URL，URL 框保存（与添加表单行为对齐）
+    titleInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        urlInput.focus();
+      }
+    });
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveEdit();
+      }
+    });
 
     // Esc = 取消（面板级捕获监听会跳过 .editing 行，由这里处理）
     row.addEventListener('keydown', (e) => {
@@ -960,6 +1016,18 @@ export function initSettings() {
   // 渲染与显隐
   // ----------------------------------------------------------
 
+  /** 记录面板滚动位置（全量重建前） */
+  function captureScroll() {
+    return bodyEl.scrollTop;
+  }
+
+  /** 重建后恢复滚动位置，并夹取到内容实际可滚动范围 */
+  function restoreScroll(top) {
+    if (typeof top !== 'number') return;
+    const maxScroll = bodyEl.scrollHeight - bodyEl.clientHeight;
+    bodyEl.scrollTop = Math.min(top, Math.max(0, maxScroll));
+  }
+
   /** 记录当前焦点信息（data-value 或 aria-label） */
   function captureFocus() {
     const el = document.activeElement;
@@ -985,6 +1053,7 @@ export function initSettings() {
 
   function render() {
     const prevFocus = captureFocus();
+    const prevScroll = captureScroll();
     titleEl.textContent = t('settings.title');
     closeBtn.setAttribute('aria-label', t('settings.close'));
     trigger.setAttribute('aria-label', t('settings.open'));
@@ -996,6 +1065,7 @@ export function initSettings() {
     bodyEl.appendChild(buildDataSection());
     bodyEl.appendChild(buildAboutSection());
     restoreFocus(prevFocus);
+    restoreScroll(prevScroll);
   }
 
   function openPanel() {
@@ -1091,7 +1161,7 @@ export function initSettings() {
   // 用捕获阶段注册，确保在浏览器默认焦点移动前拦截 Tab
   document.addEventListener('keydown', handleKeydown, true);
 
-  // 语言切换时重渲染（不关闭面板、不重置滚动）
+  // 语言切换时重渲染（不关闭面板，恢复滚动位置）
   const offLanguageChange = onLanguageChange(() => {
     if (isOpen) render();
     // 更新 trigger 的 aria-label

@@ -5,7 +5,7 @@
  * - 内置四个搜索引擎（google / bing / yandex / baidu）
  * - 输入内容自动判断为 URL（直接跳转）或关键词（用搜索引擎查询）
  * - 引擎切换通过搜索框旁的胶囊按钮 + 下拉菜单完成
- * - 全局快捷键：/ 或 Ctrl/Cmd+K 聚焦搜索框，Ctrl/Cmd+1~4 切引擎
+ * - 全局快捷键：/ 聚焦搜索框
  * - 配置持久化到 storage
  */
 
@@ -16,7 +16,7 @@ import { storage } from '../storage/storage.js';
 // 引擎定义
 // ============================================================
 
-/** 搜索引擎列表（顺序即 Ctrl+1/2/3/4 对应顺序），供设置面板复用 */
+/** 搜索引擎列表，供设置面板复用 */
 export const ENGINES = [
   {
     id: 'google',
@@ -331,7 +331,7 @@ export function initSearch() {
   menu.addEventListener('keydown', handleKeydown);
 
   // ----------------------------------------------------------
-  // 全局快捷键
+  // 全局快捷键：/ 聚焦搜索框（输入态或设置面板打开时不响应）
   // ----------------------------------------------------------
 
   /** 检测当前焦点是否在可输入元素上 */
@@ -342,26 +342,24 @@ export function initSearch() {
     return tag === 'input' || tag === 'textarea' || el.isContentEditable;
   }
 
+  /** 设置面板（模态）打开时，全局快捷键不得把焦点拉出焦点陷阱 */
+  function isSettingsPanelOpen() {
+    const panel = document.getElementById('settings-panel');
+    return !!panel && !panel.hidden;
+  }
+
   function handleGlobalKeydown(e) {
-    // / 聚焦搜索框（非输入状态下）
-    if (e.key === '/' && !isTypingContext()) {
+    // Esc 清空搜索框（仅当焦点在搜索框且有内容；引擎菜单打开时焦点在菜单项，不命中此分支）
+    if (e.key === 'Escape' && document.activeElement === input && input.value) {
+      input.value = '';
+      updateHint();
+      return;
+    }
+    // / 聚焦搜索框（非输入状态、设置面板未打开）
+    if (e.key === '/' && !isTypingContext() && !isSettingsPanelOpen()) {
       e.preventDefault();
       input.focus();
       input.select();
-      return;
-    }
-    // Ctrl/Cmd + K 聚焦搜索框
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
-      e.preventDefault();
-      input.focus();
-      input.select();
-      return;
-    }
-    // Ctrl/Cmd + 1~4 切换引擎（输入框内不触发数字切引擎，避免误操作）
-    if ((e.ctrlKey || e.metaKey) && /^[1-4]$/.test(e.key) && !isTypingContext()) {
-      e.preventDefault();
-      const idx = parseInt(e.key, 10) - 1;
-      if (ENGINES[idx]) selectEngine(ENGINES[idx].id);
       return;
     }
   }

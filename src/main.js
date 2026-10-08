@@ -21,6 +21,9 @@ function bootstrap() {
   // 读取本地配置（含 version 字段），后续据此恢复主题 / 壁纸 / 制式等
   const config = storage.load();
 
+  // 手动关闭玻璃模糊：在各模块渲染前补类，避免玻璃闪烁（head 内联脚本已先行设置，此处兜底）
+  if (config.noBlur) document.documentElement.classList.add('no-blur');
+
   // 1. 初始化多语言（同步 <html lang> 与页面标题），必须先于各渲染模块
   initI18n();
 

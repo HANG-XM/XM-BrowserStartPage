@@ -40,6 +40,14 @@
         /* 读取失败保持默认 zh-CN */
       }
 
+      // 手动关闭玻璃模糊：main.js 加载失败时也保留用户偏好，模式与 data-theme / lang 一致
+      try {
+        var cfg = JSON.parse(localStorage.getItem('xm-startpage:config') || '{}');
+        if (cfg.noBlur) document.documentElement.classList.add('no-blur');
+      } catch (e) {
+        /* 读取失败保持默认玻璃效果 */
+      }
+
       // ready 兜底：main.js 加载失败时立即开门；5s 超长兜底防静默卡死
       // 用捕获阶段 error 委托（资源 error 不冒泡，但会在捕获阶段到达 document），
       // 这样即使 head 脚本执行时 main.js 的 <script> 标签尚未解析也能命中
@@ -57,12 +65,12 @@
   </script>
 
   <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005k" />
-  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005k" />
-  <link rel="stylesheet" href="./src/styles/main.css?v=20261005k" />
+  <link rel="stylesheet" href="./src/styles/reset.css?v=20261005l" />
+  <link rel="stylesheet" href="./src/styles/variables.css?v=20261005l" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=20261005l" />
 
   <!-- ES Modules 入口，默认 defer，无需放在 body 末尾 -->
-  <script type="module" src="./src/main.js?v=20261005k"></script>
+  <script type="module" src="./src/main.js?v=20261005l"></script>
 </head>
 <body>
   <!-- 壁纸背景层与遮罩层（位于内容之下） -->

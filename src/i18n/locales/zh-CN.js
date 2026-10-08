@@ -128,6 +128,10 @@ export default {
     hourFormat12: '12 小时制',
     hourFormat24: '24 小时制',
     showSeconds: '显示秒数',
+    noBlur: '关闭玻璃模糊',
+    wallpaper: {
+      none: '无壁纸',
+    },
     engine: '默认搜索引擎',
     autoFocus: '自动聚焦搜索框',
     autoFocusHint: '进入页面时自动聚焦搜索框（触屏设备建议关闭，避免自动弹出软键盘）',

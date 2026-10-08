@@ -129,6 +129,10 @@ export default {
     hourFormat12: '12-hour',
     hourFormat24: '24-hour',
     showSeconds: 'Show seconds',
+    noBlur: 'Disable glass blur',
+    wallpaper: {
+      none: 'No wallpaper',
+    },
     engine: 'Default search engine',
     autoFocus: 'Auto-focus search box',
     autoFocusHint: 'Focus the search box on load (recommended off on touch devices to avoid the keyboard popping up)',
